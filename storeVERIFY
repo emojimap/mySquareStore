@@ -1,0 +1,102 @@
+<?php
+$mji = array("a00"=>"💈","a01"=>"🎈","a02"=>"🎂","a03"=>"🔑","a04"=>"🐈","a05"=>"🔔","a06"=>"👽","a07"=>"🐻","a08"=>"🐩","a09"=>"💋","a10"=>"🌀","a11"=>"🍑","a12"=>"🕶","a13"=>"😃","a14"=>"🍪","a15"=>"🏀","a16"=>"💂","a17"=>"📜","a18"=>"🐪","a19"=>"🏺","a20"=>"🐫","a21"=>"🌼","a22"=>"🍒","a23"=>"🐇","a24"=>"🏰","a25"=>"🍬","a26"=>"🚩","a27"=>"💍","a28"=>"🏺","a29"=>"🍀","a30"=>"🌛","a31"=>"🍓","a32"=>"👻","a33"=>"🐳","a34"=>"📘","a35"=>"🚧","a36"=>"📀","a37"=>"🎁","a38"=>"🎩","a39"=>"💭","a40"=>"🎸","a41"=>"🌴","a42"=>"🐉");
+shuffle($mji);
+$mjithx = $mji[0] . " " . $mji[1] . " " . $mji[2];
+echo $mjithx;
+
+$idem = uniqid('emoji-0001-');
+$completed = '';
+$cvv = '';
+
+
+$secs  = 2592000;
+$cents = 100;
+
+if ($_POST["ckbx"] == 'on') {
+$secs  = 15552000;
+$cents = 500;
+}
+
+$time = $_SERVER['REQUEST_TIME'] + $secs;
+
+$sid = test_input($_POST["sid"]);
+$emoji = test_input($_POST["emoji"]);
+$promo = test_input($_GET["promo"]);
+$lalo = test_input($_POST["lalo"]);
+$lalo = str_replace("+", '', $lalo);
+$lalo = str_replace(" ", '', $lalo);
+$lalo = explode(",",$lalo);
+ try {	$code = file_get_contents("codes.txt");	} catch(Exception $e) {}
+
+$ref=0;  if ($_SERVER['HTTP_REFERER'] == 'https://windrose.farm/store/emoji') {$ref=1;}
+
+
+$params = array(
+	'amount_money' => array(
+	'amount' => $cents,
+	'currency'  => 'USD'
+),
+'idempotency_key' => $idem,
+'source_id' => $sid 
+);
+
+$hdr = [];
+$hdr[] = 'Square-Version: 2023-04-19';
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+$hdr[] = 'Authorization: Bearer xxxxxxxxxxxxxxxx_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx-xxxx-xxxxxxxxxxxx';
+$hdr[] = 'Content-Type: application/json';
+
+$handle = curl_init();
+
+if (!$handle) {die("Couldn't initialize a cURL handle");}
+
+$url = "https://connect.squareup.com/v2/payments";  
+
+curl_setopt($handle, CURLOPT_URL, $url); 
+curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);  
+curl_setopt($handle, CURLOPT_HTTPHEADER, $hdr);
+curl_setopt($handle, CURLOPT_POSTFIELDS, json_encode($params)); 
+
+
+$output =  curl_exec($handle);
+curl_close($handle);
+  
+$output = json_decode($output,true); 
+foreach ($output as $key => $value) {
+	try { 
+		$word = 'COMPLETED';
+		$word2 = 'CVV_ACCEPTED';
+		$string = print_r(array_values($value), true);
+		if (strpos($string, $word) !== false) {    $completed = 'completed';	}
+		if (strpos($string, $word2) !== false) {    $cvv = 'accepted';	}
+		//echo $string;
+		//echo $value;
+		}
+	catch(Exception $e) {}
+}
+ 
+if( file_exists("codes.txt") == 1 && $promo == $code && $ref=1 ){
+	unlink("codes.txt");
+	chdir("../");
+	$db = new SQLite3('map.db') or die('Unable to open database');
+	$query = "INSERT INTO map VALUES ('". $lalo[0] . "','" . $lalo[1] . "','" . $emoji . "','https://windrose.farm/game','😎 Thanks! <br>" . $mjithx . "','" . $time . "','lockers');";
+	$db->exec($query) or die('insert failed.');
+	echo "<html><script>window.location.replace('https://windrose.farm/store/thankYou');</script>";
+} elseif ($completed == 'completed' && $cvv == 'accepted' && $ref=1 ) {
+	chdir("../");
+	$db = new SQLite3('map.db') or die('Unable to open database');
+	$query = "INSERT INTO map VALUES ('". $lalo[0] . "','" . $lalo[1] . "','" . $emoji . "','https://windrose.farm/game','😎 Thanks! <br>" . $mjithx . "','" . $time . "','lockers');";
+	$db->exec($query) or die(' ');
+	echo "<html><script>window.location.replace('https://windrose.farm/store/thankYou');</script>";
+}else {
+	echo "<html><script>window.location.replace('https://windrose.farm/store/error');</script>";
+}
+
+function test_input($data) {
+$data = trim($data);
+$data = stripslashes($data);
+$data = htmlspecialchars($data);
+return $data;
+}
+?>
+
