@@ -1,0 +1,2246 @@
+<?php session_start(); ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Windrose . Farm > Map</title>
+ 
+<script type="text/javascript" src="https://unpkg.co/gsap@3/dist/gsap.min.js"></script> 
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="shortcut icon" type="image/x-icon" href="images/favicon.ico" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
+<script type="text/javascript" src="js/MovingMarker.js"></script>
+<audio id="secret"><source src="audio/secret.mp3" type="audio/mpeg"></audio>
+<audio id="jet"><source src="audio/jet.mp3" type="audio/mpeg"></audio>
+<audio id="disney"><source src="audio/disney.mp3" type="audio/mpeg"></audio>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Trirong">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+
+html, body {
+height: 100%;
+margin: 0;
+
+}body {
+	font-family: "Trirong", serif;
+	scroll-behavior: smooth;
+	font-family: Arial, Helvetica, sans-serif;
+}
+
+.particle {
+  position: absolute;
+  will-change: transform;
+  z-index:100;
+}
+
+a:hover, a:visited, a:link, a:active
+{
+text-decoration: none;
+color:black;
+}
+
+.leaflet-container {
+width: 70%;
+height: 70%;
+border-radius: 15px;
+}
+
+.shade {
+position: absolute;
+top: 0;
+left: -3%;
+width: 99%;
+height: 50px;
+}
+
+.shade_piece {
+display: inline-block;
+width: 7.1%;
+height: 100%;
+float: left;
+border-radius: 0 0 50px 50px;
+}
+
+.red-piece {background-image: linear-gradient(to bottom, #777 60%, #999 40%);}
+
+.white-piece {background-image: linear-gradient(to bottom, #333 60%, #555 40%);}
+
+
+.header {
+  padding: 30px;
+  text-align: center;
+  background: white;
+}
+
+
+.footer {
+position: fixed;
+left: 0;
+bottom: 0;
+width: 100%;
+height: 60px;
+background-image: linear-gradient(90deg, rgba(200,0,0,.5) 50%, transparent 0),
+linear-gradient(rgba(200,0,0,.3) 50%, transparent 0);
+background-size: 30px 30px;
+text-align: center;
+}
+
+@media (max-width: 800px) and (orientation: landscape) {
+.footer {display:none;} 
+}
+
+
+#map {
+
+  z-index: 1;
+}
+
+.button {
+background-color: #4CAF50; /* Green */
+border: none;
+border-radius: 15px;
+color: white;
+padding: 8px;
+text-align: center;
+text-decoration: none;
+display: inline-block;
+font-size: 14px;
+margin: 5px;
+transition-duration: 0.4s;
+cursor: pointer;
+}
+
+.button1 {
+background-color: white;
+color: black;
+border: 2px solid #4CAF50;
+}
+
+.button1:hover {
+background-color: #4CAF50;
+color: white;
+}
+
+.button2 {
+background-color: white;
+color: black;
+border: 2px solid #008CBA;
+}
+
+.button2:hover {
+background-color: #008CBA;
+color: white;
+}
+
+.button3 {
+background-color: white;
+color: black;
+border: 2px solid #f44336;
+}
+
+.button3:hover {
+background-color: #f44336;
+color: white;
+}
+
+.button4 {
+background-color: white;
+color: black;
+border: 2px solid #e7e7e7;
+}
+
+.button4:hover {background-color: #e7e7e7;}
+
+.button5 {
+background-color: white;
+color: black;
+border: 2px solid #555555;
+}
+
+.button5:hover {
+background-color: #555555;
+color: white;
+}
+
+
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 101; /* Sit on top */
+  padding-top: 100px; /* Location of the box */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+
+}
+
+.modal-content {
+  position: relative;
+  background-color: #fefefe;
+  margin: auto;
+  padding: 0;
+  border: 1px solid #888;
+  width: 350px;
+  height: 545px;
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+  -webkit-animation-name: animatetop;
+  -webkit-animation-duration: 0.4s;
+  animation-name: animatetop;
+  animation-duration: 0.4s;
+  border-radius:20px;
+}
+
+@-webkit-keyframes animatetop {
+  from {top:-300px; opacity:0}
+  to {top:0; opacity:1}
+}
+
+@keyframes animatetop {
+  from {top:-300px; opacity:0}
+  to {top:0; opacity:1}
+}
+
+
+.modal-header {
+  border-radius:25px;
+  padding: 2px 16px;
+  background-color: #fff;
+  color: navy;
+}
+
+.modal-body {padding: 2px 16px;}
+
+.modal-footer {
+  padding: 2px 16px;
+  background-color: #fff;
+  color: navy;
+}
+
+
+
+
+.flip-card {
+  position: inline-block;
+  background-color: transparent;
+  width: 64px;
+  height: 64px;
+  perspective: 1000px;
+}
+
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+}
+
+.flip-card:hover .flip-card-inner {
+  transform: rotateY(180deg);
+}
+
+.flip-card-front, .flip-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+.flip-card-front {
+  background-color: #bbb;
+  color: black;
+}
+
+.flip-card-back {
+  font-size: 10px;
+  background-color: #2980b9;
+  color: white;
+  transform: rotateY(180deg);
+}
+
+
+.dsnyM {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 100; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+  -webkit-animation-name: fadeIn; /* Fade in the background */
+  -webkit-animation-duration: 2.4s;
+  animation-name: fadeIn;
+  animation-duration: 2.4s
+}
+
+.disneyC {
+  position: fixed;
+  bottom: 0;
+  background-color: transparent;
+  width: 100%;
+  -webkit-animation-name: slideIn;
+  -webkit-animation-duration: 4s;
+  animation-name: slideIn;
+  animation-duration: 4s
+}
+
+.disneyM {
+  background-color: transparent;
+  }
+
+@-webkit-keyframes slideIn {
+  from {bottom: -300px; opacity: 0} 
+  to {bottom: 0; opacity: 1}
+}
+
+@keyframes slideIn {
+  from {bottom: -300px; opacity: 0}
+  to {bottom: 0; opacity: 1}
+}
+
+@-webkit-keyframes fadeIn {
+  from {opacity: 0} 
+  to {opacity: 1}
+}
+
+@keyframes fadeIn {
+  from {opacity: 0} 
+  to {opacity: 1}
+}
+
+
+
+</style>
+
+</head>
+<body>
+<div class="header" >
+<a href='https://windrose.farm'>
+<div >
+<div class="shade">
+<span class="shade_piece red-piece"></span>
+<span class="shade_piece white-piece"></span>
+<span class="shade_piece red-piece"></span>
+<span class="shade_piece white-piece"></span>
+<span class="shade_piece red-piece"></span>
+<span class="shade_piece white-piece"></span>
+<span class="shade_piece red-piece"></span>
+<span class="shade_piece white-piece"></span>
+<span class="shade_piece red-piece"></span>
+<span class="shade_piece white-piece"></span>
+<span class="shade_piece red-piece"></span>
+<span class="shade_piece white-piece"></span>
+<span class="shade_piece red-piece"></span>
+<span class="shade_piece white-piece"></span>
+</div>
+</div>
+</a>
+ </div>
+
+<br>
+<div id='map' style="top:60px; width:90%; height:60%; margin: 20px;"></div>
+<br><br>
+<div style='height:12px;'>
+<button class="button button1" onclick="getLocation()" style="float:left;"><img src='iconsMap/markerGPS.png'> Location</button>
+<button class="button button2" onclick="events()" style="float:left;"><img src='iconsMap/eventEmoji.png'> Events</button>
+<button id='parkingBtn' class="button button3" onclick="parking()" style="display:none;float:left;"><img src='iconsMap/parking.png'> Parking</button>
+<button id='ft' class="button button4" onclick="latlonTruck()" style="display: none;float:left;"><img src='iconsMap/foodTr14.png'> Truck</button>
+<br><br><br><br>
+
+
+<div id="eventsDiv" style='padding:22px;margin:22px;display:none;'>
+
+ <?
+$everySat=0;
+$m = date("F"); 
+$db = new SQLite3('events.db') or die('Unable to open database');
+$result = $db->query("SELECT * FROM events WHERE month = '" . $m . "' ORDER BY date ASC, city");
+
+while ($row = $result->fetchArray()) 
+{
+	$rd = substr($row['date'], 3, 6);
+	$sd = intval(date("d")); 
+	if (substr($row['date'], 0, 5) == 'Every') {
+		if ($everySat==0) {echo '<br><br><br><h1>Every Week</h1>';$everySat=1;}
+		echo "<b>" . $row['city'] . "</b><br><span style='font-size:26px;'>🎈" . $row['event'] . "</span><br>" . $row['location'] . ": " . $row['price'] . ": " . $row['hours'] . "<br>" . $row['info'] . "<br>" . $row['date'] . "<br><br><br>"; 
+	} else if (intval($rd) >= $sd) {
+		echo "<br><br><br><br><span style='font-size:26px;'>🎈" . $row['event'] . "</span><br><b>" . $row['city'] . "</b>&nbsp;&nbsp;" . $row['date'] . " <br>" . $row['location'] . ": " . $row['price'] . ": " . $row['hours'] . "<br>" . $row['info']; 
+	} else {}
+
+}
+ ?>
+
+</div>
+
+
+<br><br><br><br> 
+</div>
+
+
+
+
+
+<div id="myModal" class="modal" >
+
+  <div class="modal-content">
+    <div class="modal-header" id="modal-header">
+
+      <h4 >Expires in 1 hour</h4>
+
+ <img src='iconsMap/foodTruck1.png' alt='Food Truck' style='width:48px;height:48px;' id='Bakery' onClick='selectTruck(this.id, this.src)'>
+ <img src='iconsMap/foodTruck2.png' alt='Food Truck' style='width:48px;height:48px;' id='BBQ' onClick='selectTruck(this.id, this.src)'>
+ <img src='iconsMap/foodTruck3.png' alt='Food Truck' style='width:48px;height:48px;' id='Shakes' onClick='selectTruck(this.id, this.src)'>
+ <img src='iconsMap/foodTruck4.png' alt='Food Truck' style='width:48px;height:48px;' id='HotDogs' onClick='selectTruck(this.id, this.src)'>
+ <img src='iconsMap/foodTruck5.png' alt='Food Truck' style='width:48px;height:48px;' id='Burgers' onClick='selectTruck(this.id, this.src)'>
+ <img src='iconsMap/foodTruck6.png' alt='Food Truck' style='width:48px;height:48px;' id='FishChips' onClick='selectTruck(this.id, this.src)'>
+ <img src='iconsMap/foodTruck7.png' alt='Food Truck' style='width:48px;height:48px;' id='Tacos' onClick='selectTruck(this.id, this.src)'>
+ <img src='iconsMap/foodTruck8.png' alt='Food Truck' style='width:48px;height:48px;' id='Pizzas' onClick='selectTruck(this.id, this.src)'>
+ <img src='iconsMap/foodTruck9.png' alt='Food Truck' style='width:48px;height:48px;' id='Pastries' onClick='selectTruck(this.id, this.src)'>
+<img src='iconsMap/foodTruck10.png' alt='Food Truck' style='width:48px;height:48px;' id='Coffee' onClick='selectTruck(this.id, this.src)'>
+<img src='iconsMap/foodTruck11.png' alt='Food Truck' style='width:48px;height:48px;' id='IceCream' onClick='selectTruck(this.id, this.src)'>
+<img src='iconsMap/foodTruck12.png' alt='Food Truck' style='width:48px;height:48px;' id='Sushi' onClick='selectTruck(this.id, this.src)'>
+<img src='iconsMap/foodTruck13.png' alt='Food Truck' style='width:48px;height:48px;' id='Tamales' onClick='selectTruck(this.id, this.src)'>
+<img src='iconsMap/foodTruck14.png' alt='Food Truck' style='width:48px;height:48px;' id='Falafel' onClick='selectTruck(this.id, this.src)'>
+<img src='iconsMap/foodTruck15.png' alt='Food Truck' style='width:48px;height:48px;' id='Cheeseburgers' onClick='selectTruck(this.id, this.src)'>
+<img src='iconsMap/foodTruck16.png' alt='Food Truck' style='width:48px;height:48px;' id='DeathDogs' onClick='selectTruck(this.id, this.src)'>
+<img src='iconsMap/foodTruck17.png' alt='Food Truck' style='width:48px;height:48px;' id='ItalianIce' onClick='selectTruck(this.id, this.src)'>
+<img src='iconsMap/foodTruck18.png' alt='Food Truck' style='width:48px;height:48px;' id='StreetFood' onClick='selectTruck(this.id, this.src)'>
+<img src='iconsMap/foodTruck19.png' alt='Food Truck' style='width:48px;height:48px;' id='Lemonade' onClick='selectTruck(this.id, this.src)'>
+<img src='iconsMap/foodTruck20.png' alt='Food Truck' style='width:48px;height:48px;' id='Pretzels' onClick='selectTruck(this.id, this.src)'>
+<img src='iconsMap/foodTruck21.png' alt='Food Truck' style='width:48px;height:48px;' id='FroYo' onClick='selectTruck(this.id, this.src)'>
+<img src='iconsMap/foodTruck22.png' alt='Food Truck' style='width:48px;height:48px;' id='Ethnic' onClick='selectTruck(this.id, this.src)'>
+<img src='iconsMap/foodTruck23.png' alt='Food Truck' style='width:48px;height:48px;' id='Burritos' onClick='selectTruck(this.id, this.src)'>
+<img src='iconsMap/foodTruck24.png' alt='Food Truck' style='width:48px;height:48px;' id='Flowers' onClick='selectTruck(this.id, this.src)'>
+	</div>
+    <div class="modal-body" id="modal-body">
+
+
+	<h2 id='type'>Type: Choose one</h2>
+
+
+
+
+
+	</div>
+    <div class="modal-footer">
+    </div>
+  </div>
+
+</div>
+
+ <div id='counter'></div>
+
+
+<div id="disM" class="dsnyM"><svg viewBox="0 0 600 800">
+
+  <path d="m662,126c-477,331 -884,364 -508,333c376,-31 29,-97 8,-220c-21,-123 150,-190 212,-167c62,23 220,0 205,169c-15,169 139,278 143,157c4,-121 5,-145 -55,-258c-60,-113 -599,-159 -563,30c36,189 117,374 288,287c171,-87 171,-283 74,-315c-97,-32 -541,22 -398,142c143,120 574,-24 574,-24c0,0 12,-19 12,-19" transform="translate(0 0)" fill="none" stroke="transparent" class="fuse"/>
+</svg>
+
+  <div class="disneyC">
+    <div class="disneyM">
+      <img src='blog/disneyCrowd.png' width=100% >
+    </div>
+  </div>
+
+</div>
+
+
+
+
+<script>
+
+ 
+var edv = document.getElementById("eventsDiv");
+
+function events() { 
+    edv.style.display = "block";
+window.scrollTo(0, 430);
+	}
+
+const citiesList = {
+London: "51.5072, -0.1276",
+Yucca_Valley: "34.121042, -116.415691",
+Yucaipa: "34.03171, -117.035974",
+Yorba_Linda: "33.894377, -117.777522",
+Wrightwood: "34.349317, -117.630369",
+Whittier: "34.019023, -118.16576",
+Westminster: "33.757813, -118.002155",
+Westlake_Village: "34.136542, -118.821533",
+West_Hollywood: "34.084901, -118.383144",
+West_Covina: "34.05619, -117.898484",
+Walnut: "34.03303, -117.85967",
+Vista: "33.203629, -117.239309",
+Villa_Park: "33.817995, -117.808514",
+Victorville: "34.537027, -117.325168",
+Vernon: "34.003516, -118.216848",
+Ventura: "34.25740, -119.20717",
+Upland: "34.117456, -117.661109",
+Twentynine_Palms: "34.152585, -116.036405",
+Tustin: "33.725826, -117.817153",
+Torrance: "33.832402, -118.341001",
+Thousand_Oaks: "34.206795, -118.859794",
+Temple_City: "34.09981, -118.062377",
+Temecula: "33.50315, -117.124007",
+Stanton: "33.805459, -117.995204",
+South_Pasadena: "34.111346, -118.157314",
+South_Gate: "33.949039, -118.198254",
+South_El_Monte: "34.049049, -118.044655",
+Solvang: "34.596633, -120.14162",
+Solana_Beach: "32.992281, -117.262111",
+Simi_Valley: "34.255766, -118.755733",
+Signal_Hill: "33.802628, -118.168365",
+Sierra_Madre: "34.16821, -118.050336",
+Seal_Beach: "33.75283, -118.069722",
+Santa_Paula: "34.351777, -119.067695",
+Santa_Monica: "34.021711, -118.479052",
+Santa_Maria: "34.929421, -120.442266",
+Santa_Fe_Springs: "33.945271, -118.06779",
+Santa_Clarita: "34.406134, -118.524849",
+Santa_Barbara: "34.389656, -119.702652",
+Santa_Ana: "33.732249, -117.880826",
+Santee: "32.855839, -116.985643",
+San_Marino: "34.125365, -118.104579",
+San_Marcos: "33.142421, -117.166665",
+San_Jacinto: "33.802544, -116.998526",
+San_Juan_Capistrano: "33.501163, -117.653984",
+San_Gabriel: "34.094609, -118.098412",
+San_Fernando: "34.288578, -118.435936",
+San_Dimas: "34.111087, -117.809633",
+San_Diego: "32.72793, -117.15529",
+San_Clemente: "33.449613, -117.61144",
+San_Bernardino: "34.136809, -117.29278",
+Rosemead: "34.061882, -118.084892",
+Riverside: "33.949274, -117.36368",
+Rialto: "34.104911, -117.381311",
+Redlands: "34.046796, -117.174269",
+Redondo_Beach: "33.867435, -118.372492",
+Rancho_Mirage: "33.758031, -116.419261",
+Rancho_Cucamonga: "34.116845, -117.575591",
+Ramona: "33.043778, -116.876706",
+Poway: "32.985675, -117.025023",
+Port_Hueneme: "34.158051, -119.201843",
+Pomona: "34.055948, -117.756785",
+Placentia: "33.876211, -117.849809",
+Pico_Rivera: "33.987396, -118.092774",
+Perris: "33.779881, -117.218363",
+Pasadena: "34.153289, -118.148936",
+Paramount: "33.897393, -118.165127",
+Palos_Verdes: "33.7445, -118.3870",
+Palm_Springs: "33.807808, -116.527883",
+Palm_Desert: "33.750378, -116.368654",								
+Oxnard: "34.195054, -119.180285",
+Orange: "33.802647, -117.84931",
+Orange_County: "33.802647, -117.84931",
+Ontario: "34.03134, -117.604914",
+Ojai: "34.449535, -119.24506",
+Oceanside: "33.224992, -117.308423",
+Norwalk: "33.908903, -118.083579",
+Norco: "33.924564, -117.546756",
+Newport_Beach: "33.59153, -117.886307",
+Needles: "34.809945, -114.610833",
+National_City: "32.66624, -117.108931",
+Murrieta: "33.570343, -117.189633",
+Moreno_Valley: "33.930202, -117.242982",
+Moorpark: "34.283508, -118.882935",
+Monterey_Park: "34.048171, -118.132541",
+Montebello: "34.012617, -118.111317",
+Montclair: "34.073936, -117.696434",
+Monrovia: "34.173272, -117.996022",
+Mission_Viejo: "33.613718, -117.655574",
+Maywood: "33.986817, -118.183615",
+Manhattan_Beach: "33.889488, -118.397131",
+Malibu: "34.020773, -118.809751",
+Lynwood: "33.923827, -118.201641",
+Lucerne_Valley: "34.439321, -116.902004",
+Los_Angeles: "34.05513, -118.25703",
+Los_Alamitos: "33.793006, -118.059769",
+Long_Beach: "33.797395, -118.121307",
+Lompoc: "34.663885, -120.47076",
+Lomita: "33.793959, -118.317659",
+Loma_Linda: "34.047904, -117.25327",
+Lemon_Grove: "32.733227, -117.034032",
+Lawndale: "33.888528, -118.352891",
+La_Quinta: "33.65204, -116.284197",
+Lakewood: "33.846539, -118.112278",
+Lake_Forest: "33.663538, -117.671374",
+Lake_Arrowhead: "34.254859, -117.190253",
+Lake_Elsinore: "33.67503, -117.353248",
+Laguna_Woods: "33.614248, -117.723557",
+Laguna_Niguel: "33.523375, -117.707744",
+Laguna_Hills: "33.58478, -117.689941",
+Laguna_Beach: "33.544192, -117.765976",
+La_Verne: "34.120301, -117.772902",
+La_Puente: "34.033564, -117.948463",
+La_Mirada: "33.902788, -118.00881",
+La_Mesa: "32.772547, -117.020365",
+La_Habra_Heights: "33.960898, -117.946421",
+La_Habra: "33.926283, -117.950761",
+La_Cañada_Flintridge: "34.205057, -118.197486",
+Joshua_Tree: "34.123662, -116.312902",
+Julian: "33.075783, -116.594316",
+Irwindale: "34.119479, -117.960911",
+Irvine: "33.672421, -117.764394",
+Inglewood: "33.959264, -118.347305",
+Industry: "34.000764, -117.918169",
+Indio: "33.724094, -116.217581",
+Indian_Wells: "33.698086, -116.342777",
+Imperial_Beach: "32.573145, -117.118195",
+Huntington_Park: "33.98268, -118.221191",
+Huntington_Beach: "33.678349, -117.999037",
+Highland: "34.116766, -117.158503",
+Hidden_Hills: "34.164133, -118.662634",
+Hesperia: "34.419796, -117.304474",
+Hermosa_Beach: "33.865192, -118.395467",
+Hemet: "33.737811, -116.995579",
+Hawthorne: "33.915269, -118.347683",
+Hawaiian_Gardens: "33.829685, -118.07478",
+Guadalupe: "34.962312, -120.572217",
+Grand_Terrace: "34.030729, -117.312881",
+Goleta: "34.4317, -119.873374",
+Glendora: "34.135884, -117.847675",
+Glendale: "34.176355, -118.24774",
+Gardena: "33.900333, -118.306898",
+Garden_Grove: "33.780211, -117.958986",
+Fullerton: "33.884009, -117.935077",
+Fountain_Valley: "33.709629, -117.951352",
+Fontana: "34.133677, -117.458299",
+Fillmore: "34.403226, -118.915636",
+Escondido: "33.12441, -117.083793",
+Encinitas: "33.042035, -117.267051",
+El_Segundo: "33.916723, -118.402015",
+El_Monte: "34.074129, -118.028513",
+El_Cajon: "32.793513, -116.966042",
+Duarte: "34.185609, -117.936392",
+Downey: "33.93656, -118.13387",
+Diamond_Bar: "33.994268, -117.812803",
+Desert_Hot_Springs: "33.976223, -116.557611",
+Del_Mar: "32.963495, -117.262333",
+Dana_Point: "33.448678, -117.7118",
+Cypress: "33.819788, -118.042985",
+Culver_City: "34.011946, -118.396248",
+Cudahy: "33.962907, -118.1842",
+Covina: "34.087051, -117.884959",
+Costa_Mesa: "33.665019, -117.920311",
+Coronado: "32.636497, -117.162015",
+Corona: "33.861947, -117.572106",
+Compton: "33.890464, -118.225034",
+Commerce: "33.997898, -118.142367",
+Colton: "34.059181, -117.318795",
+Coachella: "33.693214, -116.144864",
+Claremont: "34.124954, -117.709978",
+Chula_Vista: "32.629195, -116.971992",
+Chino: "33.999911, -117.677596",
+Cerritos: "33.871295, -118.055856",
+Cathedral_City: "33.839895, -116.466805",
+Carson: "33.835289, -118.259285",
+Carpinteria: "34.374345, -119.51625",
+Carlsbad: "33.121741, -117.288417",
+Canyon_Lake: "33.68702, -117.268562",
+Campo: "32.626222, -116.465959",
+Camarillo: "34.224367, -119.014987",
+Calimesa: "33.984201, -117.053134",
+Calabasas: "34.133715, -118.668029",
+Burbank: "34.185797, -118.322584",
+Buellton: "34.613837, -120.196993",
+Buena_Park: "33.855981, -118.004034",
+Brea: "33.922653, -117.870511",
+Bradbury: "34.156126, -117.968028",
+Blythe: "33.610974, -114.558076",
+Big_Bear_Lake: "34.24499, -116.890839",
+Beverly_Hills: "34.079068, -118.404821",
+Bellflower: "33.888124, -118.126686",
+Bell_Gardens: "33.968519, -118.144132",
+Bell: "33.974634, -118.180135",
+Beaumont: "33.865599, -116.9638",
+Barstow: "34.84567, -117.088889",
+Banning: "33.932472, -116.889975",
+Baldwin_Park: "34.083408, -117.96888",
+Azusa: "34.133682, -117.912058",
+Artesia: "33.866936, -118.082843",
+Arcadia: "34.135028, -118.041108",
+Apple_Valley: "34.533538, -117.211531",
+Anaheim: "33.82415, -117.897707",
+Alhambra: "34.085466, -118.13321",
+Agoura_Hills: "34.151465, -118.771569",
+Adelanto: "34.586782, -117.43626",
+};
+
+
+let zoomSS=0;
+let zoomSS2=0; 
+let zoomSS3=0; 
+var mbAttr = 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>';
+var mbUrl = 'https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw';
+
+var streets = L.tileLayer(mbUrl, {id: 'mapbox/streets-v11', tileSize: 512, zoomOffset: -1, attribution: mbAttr});
+var buses = L.layerGroup();
+var lockers = L.layerGroup();
+var stations = L.layerGroup();
+var skateParks = L.layerGroup();
+var foodTrucks = L.layerGroup();
+var mallsOutlets = L.layerGroup();
+var pizza = L.layerGroup();
+var stores = L.layerGroup();
+var gym = L.layerGroup();
+var monument = L.layerGroup();
+var library = L.layerGroup();
+var movies = L.layerGroup();
+var wineries = L.layerGroup();
+var map2 = L.layerGroup();
+var map3 = L.layerGroup(); 
+var map0 = L.layerGroup(); 
+var pking = L.layerGroup(); 
+var mapA = L.layerGroup(); 
+
+var osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+	maxZoom: 18,
+	attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+});
+
+var getCity = 0;
+ <? 
+if(isset($_GET['city'])) {
+
+echo "getCity = '" . $_GET['city'] . "';";
+}
+?>
+
+ if ( getCity != 0) {
+	var zmx=15;
+	var cityLS = getCity.replace(/ /g,"_"); 
+	var citiesObj =  Object.keys(citiesList);
+	var citiesLLObj =  Object.values(citiesList);
+	var cityIdx = citiesObj.indexOf(cityLS);   
+	var [latLS, lonLS] = citiesLLObj[cityIdx].split(",");
+	latLS = parseFloat(latLS);
+	lonLS = parseFloat(lonLS);
+} else if (localStorage.getItem("wxCity") === null && getCity == 0) {
+	latLS = 33.9;
+	lonLS = -117.25;
+	var zmx=15;
+ } else {
+	var zmx=15;
+	var cityLS = localStorage.getItem("wxCity").replace(/ /g,"_"); 
+	var citiesObj =  Object.keys(citiesList);
+	var citiesLLObj =  Object.values(citiesList);
+	var cityIdx = citiesObj.indexOf(cityLS);   
+	var [latLS, lonLS] = citiesLLObj[cityIdx].split(",");
+	latLS = parseFloat(latLS);
+	lonLS = parseFloat(lonLS);
+ }
+ 
+var map = L.map('map', {
+	center: [latLS,lonLS],
+	zoom: zmx,
+	layers: [osm, buses, lockers, stations, skateParks, mallsOutlets, foodTrucks, pizza, stores, gym, library, monument, movies, wineries, map2, map3, map0, pking, mapA ]
+});
+
+
+
+var baseLayers = {
+	
+};
+
+var overlays = {
+	'Bus Stops': buses,
+	'Stations': stations,
+	'Emojis': lockers,
+	'Food Trucks': foodTrucks,
+	'pizza': pizza,
+	'SkateParks': skateParks,
+	'Malls': mallsOutlets,
+	'Stores': stores,
+	'Gyms': gym,
+	'Libraries': library,
+	'Monuments': monument,
+	'movies': movies,
+	'wineries': wineries,
+};
+
+var layerControl = L.control.layers(baseLayers, overlays).addTo(map);
+ 
+
+map.on('moveend', function(e) {
+	secret();
+	var mzoom = map.getZoom();
+
+	var bounds = map.getBounds();
+	q = bounds.getSouth().toFixed(4) + ":" + bounds.getNorth().toFixed(4) + ":" +  bounds.getEast().toFixed(4) + ":" +  bounds.getWest().toFixed(4) + ":" +  mzoom;
+
+	var xmlhttp = new XMLHttpRequest();
+	xmlhttp.onreadystatechange = function() {
+	if (this.readyState == 4 && this.status == 200) {
+	buses.clearLayers();
+	lockers.clearLayers();
+	pizza.clearLayers();
+	library.clearLayers();	
+	monument.clearLayers(); 
+	stores.clearLayers();
+	gym.clearLayers();
+	
+	movies.clearLayers();
+	wineries.clearLayers();
+	
+
+	if (mzoom < 10) {mapA.clearLayers(); map2.clearLayers(); stations.clearLayers();skateParks.clearLayers(); mallsOutlets.clearLayers(); zoomSS=1;}
+	 
+	if (mzoom > 11) {eval(this.responseText);if (zoomSS == 1) {addMap2(); stations.addTo(map); addSkate(); zoomSS=0;}}
+	
+	if (mzoom < 9) { map3.clearLayers(); zoomSS2=1;}
+	if (mzoom > 10 && zoomSS2 == 1) {addMap3(); zoomSS2=0;}
+	
+	if (mzoom < 7) {map0.clearLayers(); zoomSS3=1;}
+	if (mzoom > 8 && zoomSS3 == 1) {addMap0(); zoomSS3=0;}
+	 
+	if (mzoom > 13) {mapA.clearLayers();}
+	 
+	}
+	};
+	xmlhttp.open("GET", "mGet?q=" + q, true);
+	xmlhttp.send();
+
+});
+
+
+const mapIcon = L.Icon.extend({
+		options: {
+	//shadowUrl: 'default-shadow.png',
+	//shadowSize:   [50, 64],
+	//shadowAnchor: [4, 62],
+	//iconSize:     [100,80],
+	iconAnchor:   [16,16],
+	popupAnchor:  [0,0]
+	}
+});
+
+
+const bakery = new mapIcon({iconUrl: 'iconsMap/foodTr1.png'});
+const bbq = new mapIcon({iconUrl: 'iconsMap/foodTr2.png'});
+const shakes = new mapIcon({iconUrl: 'iconsMap/foodTr3.png'});
+const hotdogs = new mapIcon({iconUrl: 'iconsMap/foodTr4.png'});
+const burgers = new mapIcon({iconUrl: 'iconsMap/foodTr5.png'});
+const fishchips = new mapIcon({iconUrl: 'iconsMap/foodTr6.png'});
+const tacos = new mapIcon({iconUrl: 'iconsMap/foodTr7.png'});
+const pizzas = new mapIcon({iconUrl: 'iconsMap/foodTr8.png'});
+const pastries = new mapIcon({iconUrl: 'iconsMap/foodTr9.png'});
+const coffee = new mapIcon({iconUrl: 'iconsMap/foodTr10.png'});
+const icecream = new mapIcon({iconUrl: 'iconsMap/foodTr11.png'});
+const sushi = new mapIcon({iconUrl: 'iconsMap/foodTr12.png'});
+const tamales = new mapIcon({iconUrl: 'iconsMap/foodTr13.png'});
+const falafel = new mapIcon({iconUrl: 'iconsMap/foodTr14.png'});
+const cheeseburgers = new mapIcon({iconUrl: 'iconsMap/foodTr15.png'});
+const deathdogs = new mapIcon({iconUrl: 'iconsMap/foodTr16.png'});
+const italianice = new mapIcon({iconUrl: 'iconsMap/foodTr17.png'});
+const streetfood = new mapIcon({iconUrl: 'iconsMap/foodTr18.png'});
+const lemonade = new mapIcon({iconUrl: 'iconsMap/foodTr19.png'});
+const pretzels = new mapIcon({iconUrl: 'iconsMap/foodTr20.png'});
+const froyo = new mapIcon({iconUrl: 'iconsMap/foodTr21.png'});
+const ethnic = new mapIcon({iconUrl: 'iconsMap/foodTr22.png'});
+const burritos = new mapIcon({iconUrl: 'iconsMap/foodTr23.png'});
+const flowers = new mapIcon({iconUrl: 'iconsMap/foodTr24.png'});
+
+const boxOfChocolates = new mapIcon({iconUrl: 'iconsMap/boxOfChocolates.png'});
+const yellowRibbon = new mapIcon({iconUrl: 'iconsMap/yellowRibbon.png'});
+const coconut = new mapIcon({iconUrl: 'iconsMap/coconut.png'});
+const elves1 = new mapIcon({iconUrl: 'iconsMap/elves1.png'});
+const elves2 = new mapIcon({iconUrl: 'iconsMap/elves2.png'});
+const frankenstein = new mapIcon({iconUrl: 'iconsMap/frankenstein.png', iconAnchor: [24,24]});
+const frosty = new mapIcon({iconUrl: 'iconsMap/frosty.png'});
+const gingerbread = new mapIcon({iconUrl: 'iconsMap/gingerbread.png'});
+const iceCream = new mapIcon({iconUrl: 'iconsMap/iceCream.png'});
+const mechanic = new mapIcon({iconUrl: 'iconsMap/mechanic.png'});
+const ninja = new mapIcon({iconUrl: 'iconsMap/ninja.png'});
+const panhandler = new mapIcon({iconUrl: 'iconsMap/panhandler.png'});
+const pumpkin0 = new mapIcon({iconUrl: 'iconsMap/pumpkin0.png'});
+const pumpkin1 = new mapIcon({iconUrl: 'iconsMap/pumpkin1.png'});
+const pumpkin10 = new mapIcon({iconUrl: 'iconsMap/pumpkin10.png'});
+const pumpkin11 = new mapIcon({iconUrl: 'iconsMap/pumpkin11.png'});
+const pumpkin12 = new mapIcon({iconUrl: 'iconsMap/pumpkin12.png'});
+const pumpkin13 = new mapIcon({iconUrl: 'iconsMap/pumpkin13.png'});
+const pumpkin14 = new mapIcon({iconUrl: 'iconsMap/pumpkin14.png'});
+const pumpkin15 = new mapIcon({iconUrl: 'iconsMap/pumpkin15.png'});
+const pumpkin16 = new mapIcon({iconUrl: 'iconsMap/pumpkin16.png'});
+const pumpkin17 = new mapIcon({iconUrl: 'iconsMap/pumpkin17.png'});
+const pumpkin18 = new mapIcon({iconUrl: 'iconsMap/pumpkin18.png'});
+const pumpkin19 = new mapIcon({iconUrl: 'iconsMap/pumpkin19.png'});
+const pumpkin2 = new mapIcon({iconUrl: 'iconsMap/pumpkin2.png'});
+const pumpkin20 = new mapIcon({iconUrl: 'iconsMap/pumpkin20.png'});
+const pumpkin21 = new mapIcon({iconUrl: 'iconsMap/pumpkin21.png'});
+const pumpkin22 = new mapIcon({iconUrl: 'iconsMap/pumpkin22.png'});
+const pumpkin23 = new mapIcon({iconUrl: 'iconsMap/pumpkin23.png'});
+const pumpkin3 = new mapIcon({iconUrl: 'iconsMap/pumpkin3.png'});
+const pumpkin4 = new mapIcon({iconUrl: 'iconsMap/pumpkin4.png'});
+const pumpkin5 = new mapIcon({iconUrl: 'iconsMap/pumpkin5.png'});
+const pumpkin6 = new mapIcon({iconUrl: 'iconsMap/pumpkin6.png'});
+const pumpkin7 = new mapIcon({iconUrl: 'iconsMap/pumpkin7.png'});
+const pumpkin8 = new mapIcon({iconUrl: 'iconsMap/pumpkin8.png'});
+const pumpkin9 = new mapIcon({iconUrl: 'iconsMap/pumpkin9.png'});
+const rudolph = new mapIcon({iconUrl: 'iconsMap/rudolph.png'});
+const sandwich = new mapIcon({iconUrl: 'iconsMap/sandwich.png'});
+const santa = new mapIcon({iconUrl: 'iconsMap/santa.png'});
+const scarf = new mapIcon({iconUrl: 'iconsMap/scarf.png'});
+const snorkel = new mapIcon({iconUrl: 'iconsMap/snorkel.png'});
+const superstar = new mapIcon({iconUrl: 'iconsMap/superstar.png'});
+const surfer = new mapIcon({iconUrl: 'iconsMap/surfer.png'});
+const umbrella = new mapIcon({iconUrl: 'iconsMap/umbrella.png'});
+const yellowSub = new mapIcon({iconUrl: 'iconsMap/yellowSub.png'});
+
+const gondola = new mapIcon({iconUrl: 'iconsMap/gondola.png'});
+const pmpkn = new mapIcon({iconUrl: 'iconsMap/pumpkin.png'});
+const xmsTr = new mapIcon({iconUrl: 'iconsMap/xmasTree.png'});
+const locker = new mapIcon({iconUrl: 'iconsMap/locker.png'});
+const RTAbus = new mapIcon({iconUrl: 'iconsMap/RTAbus.png'});
+const getBus = new mapIcon({iconUrl: 'iconsMap/getBus.png'});
+const kernBus = new mapIcon({iconUrl: 'iconsMap/kernBus.png'});
+const busOC = new mapIcon({iconUrl: 'iconsMap/busOC.png'});
+const cstle = new mapIcon({iconUrl: 'iconsMap/castlePark.png'});
+const snwVlly = new mapIcon({iconUrl: 'iconsMap/snowValley.png'});
+const snwSmmt = new mapIcon({iconUrl: 'iconsMap/snowSummit.png'});
+const brMtn = new mapIcon({iconUrl: 'iconsMap/bearMtn.png'});
+const railMsm = new mapIcon({iconUrl: 'iconsMap/railwayMuseum.png'});
+const prrsSpdwy = new mapIcon({iconUrl: 'iconsMap/perrisSpeedway.png'});
+const sclFr = new mapIcon({iconUrl: 'iconsMap/socalFair.png'});
+const rvrsdeFr = new mapIcon({iconUrl: 'iconsMap/riversideFair.png'});
+const autoclbSpdwy = new mapIcon({iconUrl: 'iconsMap/autoclubSpeedway.png'});
+const legolnd = new mapIcon({iconUrl: 'iconsMap/legoland.png'});
+const KnttsBrryFrm = new mapIcon({iconUrl: 'iconsMap/KnottsBerryFarm.png'});
+const Dsnylnd = new mapIcon({iconUrl: 'iconsMap/disneyland.png'});
+const mcd1 = new mapIcon({iconUrl: 'iconsMap/mcDonalds1.png'});
+const mcd = new mapIcon({iconUrl: 'iconsMap/mcDonalds.png'});
+const qnMry = new mapIcon({iconUrl: 'iconsMap/queenMary.png', iconAnchor: [72,32]});
+const rvnSpctrm = new mapIcon({iconUrl: 'iconsMap/irvineSpectrum.png'});
+const unvrslStds = new mapIcon({iconUrl: 'iconsMap/universalStudios.png'});
+const mgcmntn = new mapIcon({iconUrl: 'iconsMap/magicMountain.png'});
+const vllgFst = new mapIcon({iconUrl: 'iconsMap/villageFest.png'});
+const plmSprngs = new mapIcon({iconUrl: 'iconsMap/palmSprings.png'});
+const moValAmp = new mapIcon({iconUrl: 'iconsMap/amphitheater.png', iconAnchor: [32,32]});
+const ctyHll = new mapIcon({iconUrl: 'iconsMap/movalCityHall.png'});
+const UCR = new mapIcon({iconUrl: 'iconsMap/UCRiverside.png'});
+const lsVgs = new mapIcon({iconUrl: 'iconsMap/vegas.png', iconAnchor: [64,80]});
+const mtrolnk = new mapIcon({iconUrl: 'iconsMap/metrolink.png', iconAnchor: [0,27]});
+const amtrk = new mapIcon({iconUrl: 'iconsMap/amtrakLogo.png'});
+const amtrk2 = new mapIcon({iconUrl: 'iconsMap/amtrakLogo2.png'});
+const scrt = new mapIcon({iconUrl: 'iconsMap/secret.png'});
+const unStn = new mapIcon({iconUrl: 'iconsMap/unionStation.png'});
+const bwl = new mapIcon({iconUrl: 'iconsMap/bowling.png'});
+const arc = new mapIcon({iconUrl: 'iconsMap/arcade.png'});
+const bwlero = new mapIcon({iconUrl: 'iconsMap/bowlero.png'});
+const cstc = new mapIcon({iconUrl: 'iconsMap/costco.png'});
+var pza = new mapIcon({iconUrl: 'iconsMap/pizza.png'});
+var hmDpt = new mapIcon({iconUrl: 'iconsMap/homeDepot.png'});
+var hrse1 = new mapIcon({iconUrl: 'iconsMap/horse1.png'});
+var hrse2 = new mapIcon({iconUrl: 'iconsMap/horse2.png'});
+const hab = new mapIcon({iconUrl: 'iconsMap/hotAirBalloon.png'});
+const motte = new mapIcon({iconUrl: 'iconsMap/motteCarMuseum.png'});
+const rnd1 = new mapIcon({iconUrl: 'iconsMap/arcade.png'});
+const plmSprngsWndmll = new mapIcon({iconUrl: 'iconsMap/windmillTours.png', iconAnchor: [20,40]});
+const lgnPlyhs = new mapIcon({iconUrl: 'iconsMap/lagunaPlayhouse.png'});
+const cbznDnsr = new mapIcon({iconUrl: 'iconsMap/dinosaur.png'});
+const mffc = new mapIcon({iconUrl: 'iconsMap/MulliganFFC.png'});
+const FstVllg = new mapIcon({iconUrl: 'iconsMap/fiestaVillage.png'});
+const OCfr = new mapIcon({iconUrl: 'iconsMap/OCfair.png'});
+const thGtty = new mapIcon({iconUrl: 'iconsMap/theGetty.png'});
+const RbdxDrvn = new mapIcon({iconUrl: 'iconsMap/driveIn.png'});
+const DrpZnWtrprk = new mapIcon({iconUrl: 'iconsMap/dropzone.png'});
+const BgLgDrms = new mapIcon({iconUrl: 'iconsMap/bld.png'});
+const scp = new mapIcon({iconUrl: 'iconsMap/southCoastPlaza.png'});
+const spdwy = new mapIcon({iconUrl: 'iconsMap/speedway.png', iconAnchor: [64,0]});
+const vnBrnDrvn = new mapIcon({iconUrl: 'iconsMap/vanBurenDriveIn.png'});
+const shopping1 = new mapIcon({iconUrl: 'iconsMap/shopping1.png'});
+const shopping2 = new mapIcon({iconUrl: 'iconsMap/shopping2.png'});
+const shopping3 = new mapIcon({iconUrl: 'iconsMap/shopping3.png'});
+const shopping4 = new mapIcon({iconUrl: 'iconsMap/shopping4.png'});
+const shopping5 = new mapIcon({iconUrl: 'iconsMap/shopping5.png'});
+const shopping6 = new mapIcon({iconUrl: 'iconsMap/shopping6.png'});
+const mssnInn = new mapIcon({iconUrl: 'iconsMap/missionInn.png'});
+const rdPerrs = new mapIcon({iconUrl: 'iconsMap/ridePerris.png'});
+const sdbus = new mapIcon({iconUrl: 'iconsMap/sdbus.png'});
+const SBbus = new mapIcon({iconUrl: 'iconsMap/sbBus.png'});
+const seaWrld = new mapIcon({iconUrl: 'iconsMap/seaWorld.png'});
+const lttlItly = new mapIcon({iconUrl: 'iconsMap/littleItaly.png'});
+const oldTwn = new mapIcon({iconUrl: 'iconsMap/oldTown.png'});
+const blmntPrk = new mapIcon({iconUrl: 'iconsMap/belmontPark.png'});
+const northgate = new mapIcon({iconUrl: 'iconsMap/northgateMarket.png'});
+const nrthgtMrkt = new mapIcon({iconUrl: 'iconsMap/northgateMarket.png'});
+const sprtVllg = new mapIcon({iconUrl: 'iconsMap/seaportVillage.png'});
+const beach = new mapIcon({iconUrl: 'iconsMap/beach.png'});
+const sdcc = new mapIcon({iconUrl: 'iconsMap/sdcc.png'});
+const GslmpQrtr = new mapIcon({iconUrl: 'iconsMap/gaslampQuarter.png'});
+const sdsuLogo = new mapIcon({iconUrl: 'iconsMap/sdsu.png'});
+const ucsdLogo = new mapIcon({iconUrl: 'iconsMap/ucsd.png'});
+const tram = new mapIcon({iconUrl: 'iconsMap/tram.png'});
+const zooSB = new mapIcon({iconUrl: 'iconsMap/zooSB.png'});
+const zooSD = new mapIcon({iconUrl: 'iconsMap/zooSD.png'});
+const zooSA = new mapIcon({iconUrl: 'iconsMap/zooSA.png'});
+const zooOC = new mapIcon({iconUrl: 'iconsMap/zooOC.png', iconAnchor: [-32,20]});
+const mdwyMsm = new mapIcon({iconUrl: 'iconsMap/midwayMuseum.png'});
+const aqrmPcfc = new mapIcon({iconUrl: 'iconsMap/aquariumPacific.png'});
+const arshwPMG = new mapIcon({iconUrl: 'iconsMap/airshowPMG.png'});
+const arshwMAFB = new mapIcon({iconUrl: 'iconsMap/airshowMAFB.png'});
+const arshwPAHB = new mapIcon({iconUrl: 'iconsMap/pacificAirshow.png'});
+const scVllg = new mapIcon({iconUrl: 'iconsMap/scVillage.png'});
+const fnZn = new mapIcon({iconUrl: 'iconsMap/funZone.png'});
+const innrLmts = new mapIcon({iconUrl: 'iconsMap/innerLimits.png', iconAnchor: [40,60]});
+const caliAdvntr = new mapIcon({iconUrl: 'iconsMap/caiforniaAdventure.png'});
+const anhmDcks = new mapIcon({iconUrl: 'iconsMap/anaheimDucks.png'});
+const caliAngls = new mapIcon({iconUrl: 'iconsMap/californiaAngels.png'});
+const REI = new mapIcon({iconUrl: 'iconsMap/rei.png'});
+const IKEA = new mapIcon({iconUrl: 'iconsMap/ikea.png'});
+const cchHs = new mapIcon({iconUrl: 'iconsMap/coachHouse.png'});
+const rstrntJss = new mapIcon({iconUrl: 'iconsMap/restaurantJoses.png'});
+const SprrGrcrs = new mapIcon({iconUrl: 'iconsMap/SuperiorGrocers.png'});
+const wlmrt = new mapIcon({iconUrl: 'iconsMap/walmartLogo.png'});
+const trgt = new mapIcon({iconUrl: 'iconsMap/targetLogo.png'});
+const hrbrFrght = new mapIcon({iconUrl: 'iconsMap/harborFreight.png'});
+const BrnsNbl = new mapIcon({iconUrl: 'iconsMap/BarnesNoble.png', iconAnchor: [64,32]});
+const gym24 = new mapIcon({iconUrl: 'iconsMap/gym24hrFitness.png'});
+const ddgrs = new mapIcon({iconUrl: 'iconsMap/dodger.png'});
+const lkrs = new mapIcon({iconUrl: 'iconsMap/lakers.png'});
+const clprs = new mapIcon({iconUrl: 'iconsMap/clippers.png'});
+const lbry = new mapIcon({iconUrl: 'iconsMap/library.png'});
+const mssn = new mapIcon({iconUrl: 'iconsMap/mission.png', iconAnchor: [16,42], popupAnchor: [5, -40]});
+const Sprts = new mapIcon({iconUrl: 'iconsMap/sprouts.png'});
+const advntrCty = new mapIcon({iconUrl: 'iconsMap/adventureCity.png'});
+const grffth = new mapIcon({iconUrl: 'iconsMap/griffithObservatory.png'});
+const gldCstTrnst = new mapIcon({iconUrl: 'iconsMap/goldCoastTransit.png'});
+const BVbus = new mapIcon({iconUrl: 'iconsMap/goVentura.png'});
+const omni = new mapIcon({iconUrl: 'iconsMap/omnibus.png'});
+const trdrJs = new mapIcon({iconUrl: 'iconsMap/traderJoes.png'});
+const wnCFds = new mapIcon({iconUrl: 'iconsMap/winCoFoods.png'});
+const movie = new mapIcon({iconUrl: 'iconsMap/movie.png'});
+const winery = new mapIcon({iconUrl: 'iconsMap/winery.png'});
+const grcryOutlet = new mapIcon({iconUrl: 'iconsMap/groceryOutlet.png'});
+const mdvlTms = new mapIcon({iconUrl: 'iconsMap/medievalTimes.png', iconAnchor: [100,32]});
+const mltrySrpls = new mapIcon({iconUrl: 'iconsMap/militarySurplus.png', iconAnchor: [48,-26]});
+const toaks = new mapIcon({iconUrl: 'iconsMap/thoasandOaksTransit.png'});
+const SVbus = new mapIcon({iconUrl: 'iconsMap/simiValleyTransit.png'});
+const beelineG = new mapIcon({iconUrl: 'iconsMap/beelineGlendale.png'});
+const hllywdSgn = new mapIcon({iconUrl: 'iconsMap/hollywoodSign.png'});
+const pasadena = new mapIcon({iconUrl: 'iconsMap/pasadenaTransit.png'});
+const crnaBus = new mapIcon({iconUrl: 'iconsMap/coronaCruiser.png'});
+const elMonteBus = new mapIcon({iconUrl: 'iconsMap/elMonteBus.png'});
+const beaumontBus = new mapIcon({iconUrl: 'iconsMap/beaumontTransit.png'});
+const sunLineTP = new mapIcon({iconUrl: 'iconsMap/sunLineThousandPalmsBus.png'});
+const sprtMntry = new mapIcon({iconUrl: 'iconsMap/spiritMontereyPark.png'});
+const LBbus = new mapIcon({iconUrl: 'iconsMap/lagunaBeachTrolley.png'});
+const nrwlkBus = new mapIcon({iconUrl: 'iconsMap/norwalkBus.png'});
+const artBus = new mapIcon({iconUrl: 'iconsMap/artBus.png'});
+const clvrbus = new mapIcon({iconUrl: 'iconsMap/culverCityBus.png'});
+const smbbb = new mapIcon({iconUrl: 'iconsMap/santaMonicaBigBlueBus.png'});
+const avlnBus = new mapIcon({iconUrl: 'iconsMap/avalonBus.png'});
+const mtnTrnst = new mapIcon({iconUrl: 'iconsMap/moutainTransit.png'});
+const trrnc = new mapIcon({iconUrl: 'iconsMap/torranceTransit.png'});
+const pvTransit = new mapIcon({iconUrl: 'iconsMap/palosVerdesTransit.png'});
+const lbtBus = new mapIcon({iconUrl: 'iconsMap/lbtTransit.png'});
+const LAmetro = new mapIcon({iconUrl: 'iconsMap/laMetro.png'});
+const GObus = new mapIcon({iconUrl: 'iconsMap/GObusLA.png'});
+const ladot = new mapIcon({iconUrl: 'iconsMap/ladot.png'});
+const fthllBus = new mapIcon({iconUrl: 'iconsMap/footHillTransit.png'});
+const lawndaleBt = new mapIcon({iconUrl: 'iconsMap/lawndaleBeat.png'});
+const vctrVlly = new mapIcon({iconUrl: 'iconsMap/victorValley.png'});
+const Bizzard = new mapIcon({iconUrl: 'iconsMap/blizzard.png'});
+const teamAssoc = new mapIcon({iconUrl: 'iconsMap/teamAssoc.png'});
+const bttlshpIwa = new mapIcon({iconUrl: 'iconsMap/battleshipIowa.png', iconAnchor: [30,0]});
+const lbgp = new mapIcon({iconUrl: 'iconsMap/lbgp.png', iconAnchor: [0,20]});
+const cchlla = new mapIcon({iconUrl: 'iconsMap/coachella.png'});
+const ntnlPrk = new mapIcon({iconUrl: 'iconsMap/nationalParks.png'});
+const metroBike = new mapIcon({iconUrl: 'iconsMap/metroBike.png'});
+const mtRbdu = new mapIcon({iconUrl: 'iconsMap/lookoutEmoji.png'});
+const pseoMll = new mapIcon({iconUrl: 'iconsMap/paseoMall.png'});
+const artWlk = new mapIcon({iconUrl: 'iconsMap/artWalk.png'});
+const rgrsGrdns = new mapIcon({iconUrl: 'iconsMap/rogersGardens.png'});
+const lsBrss = new mapIcon({iconUrl: 'iconsMap/lasBrisas.png', iconAnchor: [70,50]});
+const grdnWlk = new mapIcon({iconUrl: 'iconsMap/gardenWalk.png', iconAnchor: [-10,0]});
+const acc = new mapIcon({iconUrl: 'iconsMap/anaheimConventionCenter.png', iconAnchor: [30,60]});
+const vntraCntyFr = new mapIcon({iconUrl: 'iconsMap/venturaCountyFair.png'});
+const grtWlfLdg = new mapIcon({iconUrl: 'iconsMap/greatWolfLodge.png'});
+const ncklNckl = new mapIcon({iconUrl: 'iconsMap/nickelNickel.png'});
+const mntg = new mapIcon({iconUrl: 'iconsMap/montage.png', iconAnchor: [60,0]});
+const ocnsElvn = new mapIcon({iconUrl: 'iconsMap/oceansEleven.png'});
+const pirate = new mapIcon({iconUrl: 'iconsMap/pirateFlag.png', iconAnchor: [0,65]});
+const RnssncFr = new mapIcon({iconUrl: 'iconsMap/RenaissanceFaire.png'});
+const pdrs = new mapIcon({iconUrl: 'iconsMap/padres.png'});
+const ptcPrk = new mapIcon({iconUrl: 'iconsMap/petcoPark.png'});
+const pcfcPrkPr = new mapIcon({iconUrl: 'iconsMap/pacificParkPier.png'});
+const mcFddn = new mapIcon({iconUrl: 'iconsMap/bicycleRepair.png'});
+const train1 = new mapIcon({iconUrl: 'iconsMap/modelTrain.png'});
+const train2 = new mapIcon({iconUrl: 'iconsMap/modelTrain2.png'});
+const strnsWhrf = new mapIcon({iconUrl: 'iconsMap/fishing1.png'});
+const longBeachCC = new mapIcon({iconUrl: 'iconsMap/longBeachCC.png', iconAnchor: [32,32]});
+const metroA = new mapIcon({iconUrl: 'iconsMap/metroA.png'});
+const metroCA = new mapIcon({iconUrl: 'iconsMap/metroCA.png', iconAnchor: [32,0]});
+const metroCJ = new mapIcon({iconUrl: 'iconsMap/metroCJ.png', iconAnchor: [32,0]});
+const metroAJ = new mapIcon({iconUrl: 'iconsMap/metroAJ.png', iconAnchor: [32,0]});
+const metroGB = new mapIcon({iconUrl: 'iconsMap/metroGB.png', iconAnchor: [32,0]});
+const metroBDJ = new mapIcon({iconUrl: 'iconsMap/metroBDJ.png', iconAnchor: [32,0]});
+const metroKE = new mapIcon({iconUrl: 'iconsMap/metroKE.png', iconAnchor: [32,0]});
+const metroDB = new mapIcon({iconUrl: 'iconsMap/metroDB.png', iconAnchor: [32,0]});
+const metroAEJ = new mapIcon({iconUrl: 'iconsMap/metroAEJ.png', iconAnchor: [64,0]});
+const metroAEJBD = new mapIcon({iconUrl: 'iconsMap/metroAEJBD.png', iconAnchor: [90,32]});
+const metroB = new mapIcon({iconUrl: 'iconsMap/metroB.png'});
+const metroC = new mapIcon({iconUrl: 'iconsMap/metroC.png'});
+const metroD = new mapIcon({iconUrl: 'iconsMap/metroD.png'});
+const metroE = new mapIcon({iconUrl: 'iconsMap/metroE.png'});
+const metroK = new mapIcon({iconUrl: 'iconsMap/metroK.png'});
+const metroL = new mapIcon({iconUrl: 'iconsMap/metroL.png'});
+const ucla = new mapIcon({iconUrl: 'iconsMap/ucla.png'});
+const usc = new mapIcon({iconUrl: 'iconsMap/usc.png'});
+const hllcrst = new mapIcon({iconUrl: 'iconsMap/hillcrest.png'});
+const snpdrgnStdm = new mapIcon({iconUrl: 'iconsMap/snapdragon.png'});
+const prkng = new mapIcon({iconUrl: 'iconsMap/parking.png'});
+const smrt = new mapIcon({iconUrl: 'iconsMap/santaMariaTransit.png'});
+const bevCent = new mapIcon({iconUrl: 'iconsMap/beverlyCenter.png'});
+const sofiStdm = new mapIcon({iconUrl: 'iconsMap/sofiStadium.png'});
+const LAfrm = new mapIcon({iconUrl: 'iconsMap/LAforum.png'});
+const hllywdPrk = new mapIcon({iconUrl: 'iconsMap/hollywoodPark.png'});
+const amoeba = new mapIcon({iconUrl: 'iconsMap/amoebaMusic.png'});
+const sloBus = new mapIcon({iconUrl: 'iconsMap/sloBus.png'});
+const lax = new mapIcon({iconUrl: 'iconsMap/LAXinfo.png', iconAnchor: [80,16]});
+const sna = new mapIcon({iconUrl: 'iconsMap/SNAinfo.png', iconAnchor: [60,0]});
+const sba = new mapIcon({iconUrl: 'iconsMap/SBAinfo.png', iconAnchor: [60,0]});
+const psp = new mapIcon({iconUrl: 'iconsMap/PSPinfo.png', iconAnchor: [10,20]});
+const vorpsp = new mapIcon({iconUrl: 'iconsMap/vorPSPinfo.png', iconAnchor: [33,30]});
+const crq = new mapIcon({iconUrl: 'iconsMap/CRQinfo.png', iconAnchor: [10,20]});
+const ocsc = new mapIcon({iconUrl: 'iconsMap/ocStreetcar.png', iconAnchor: [16,16]});
+const wwrk = new mapIcon({iconUrl: 'iconsMap/weWork.png'});
+const rgngWtrs = new mapIcon({iconUrl: 'iconsMap/ragingWaters.png'});
+const wldRvrs = new mapIcon({iconUrl: 'iconsMap/wildRivers.png'});
+const skCty = new mapIcon({iconUrl: 'iconsMap/soakCity.png'});
+const ofmla = new mapIcon({iconUrl: 'iconsMap/originalFarmersMarketLA.png', iconAnchor: [0,100]});
+const LAclsm = new mapIcon({iconUrl: 'iconsMap/LAcoliseum.png'});
+const sddlbck = new mapIcon({iconUrl: 'iconsMap/saddleback.png'});
+const sbcc = new mapIcon({iconUrl: 'iconsMap/sbcc.png'});
+const bbs = new mapIcon({iconUrl: 'iconsMap/bbsnow.png'});
+const wwdp = new mapIcon({iconUrl: 'iconsMap/wwdp.png'});
+const occ = new mapIcon({iconUrl: 'iconsMap/occ.png'});
+const advntrLgn = new mapIcon({iconUrl: 'iconsMap/adventureLagoon.png'});
+const bmrs  = new mapIcon({iconUrl: 'iconsMap/boomers.png'});
+const ssmePlce = new mapIcon({iconUrl: 'iconsMap/sesamePlace.png'});
+const nwprtDns = new mapIcon({iconUrl: 'iconsMap/newportDunes.png', iconAnchor: [99,16]});
+const bnvntr = new mapIcon({iconUrl: 'iconsMap/cocktails.png'});
+const dscGlf = new mapIcon({iconUrl: 'iconsMap/discGolf.png'});
+const gwc = new mapIcon({iconUrl: 'iconsMap/goldenwestCollege.png', iconAnchor: [40,0]});;
+const nhmLA = new mapIcon({iconUrl: 'iconsMap/nhmLA.png', iconAnchor: [16,16]});
+const trpt = new mapIcon({iconUrl: 'iconsMap/tpLB.png', iconAnchor: [16,16]});
+const rsbwl = new mapIcon({iconUrl: 'iconsMap/roseBowl.png', iconAnchor: [16,16]});
+
+var pmnFrplx = new mapIcon({iconUrl: 'iconsMap/pomonaFairplex.png'});
+const laCntyFr = new mapIcon({iconUrl: 'iconsMap/laCountyFair.png'});
+const crossroadsOfTheWest = new mapIcon({iconUrl: 'iconsMap/crossroadsWest.png'});
+pmnFrplx = crossroadsOfTheWest;
+pmnFrplxLink = "https://www.crossroadsgunshows.com/";
+ 
+var nos = new mapIcon({iconUrl: 'iconsMap/nos.png', iconAnchor:   [0,32]});
+nosLink = "https://www.nosevents.com";
+							
+const mission1 = L.marker([34.43830, -119.71410], {icon: mssn}).bindPopup("<a target='_blank' href='https://www.santabarbaramission.org/'>Santa Bárbara</a>").addTo(map); 
+const mission2 = L.marker([34.28102, -119.29804], {icon: mssn}).bindPopup("<a target='_blank' href='https://www.sanbuenaventuramission.org/'>San Buenaventura</a>").addTo(map);
+const mission3 = L.marker([34.27295, -118.46164], {icon: mssn}).bindPopup("<a target='_blank' href='https://californiamissionsfoundation.org/mission-san-fernando/'>San Fernando Rey</a>").addTo(map);
+const mission4 = L.marker([34.09701, -118.10744], {icon: mssn}).bindPopup("<a target='_blank' href='https://californiamissionsfoundation.org/mission-san-gabriel/'>San Gabriel Arcánge</a>").addTo(map);
+const mission5 = L.marker([33.50200, -117.66270], {icon: mssn}).bindPopup("<a target='_blank' href='https://www.missionsjc.com/'>San Juan Capistrano</a>").addTo(map);
+const mission6 = L.marker([33.23219, -117.31970], {icon: mssn}).bindPopup("<a target='_blank' href='https://www.missionscalifornia.com/missions/san-luis-rey-francia/'>San Luis Rey de Francía</a>").addTo(map);
+const mission7 = L.marker([32.78457, -117.10603], {icon: mssn}).bindPopup("<a target='_blank' href='https://www.missionsandiego.org/'>San Diego de Alcalá</a>").addTo(map);
+
+const horseStaging1 = L.marker([33.96824, -117.26578], {icon: hrse1}).bindPopup("<a target='_blank' href='https://moval.gov/parks-comm-svc/pdfs/trails/equestrian-staging1010.pdf'>Equestrian Staging<br>Box Springs Trail Head<br>Sunnymead Ranch Pkwy & Via Del Norte</a>").addTo(map);
+const horseStaging2 = L.marker([33.97552, -117.25772], {icon: hrse1}).bindPopup("<a target='_blank' href='https://moval.gov/parks-comm-svc/pdfs/trails/equestrian-staging1010.pdf'>Equestrian Staging<br>Sunnymead Ranch Staging & Trail<br>Hidden Springs Rd & Pigeon Pass Rd.</a>").addTo(map);
+const horseStaging3 = L.marker([33.95969, -117.15489], {icon: hrse1}).bindPopup("<a target='_blank' href='https://moval.gov/parks-comm-svc/pdfs/trails/equestrian-staging1010.pdf'>Equestrian Staging<br>Moreno Valley Equestrian Center<br>Locust Ave.</a>").addTo(map);
+const horseStaging4 = L.marker([33.92932, -117.18581], {icon: hrse1}).bindPopup("<a target='_blank' href='https://moval.gov/parks-comm-svc/pdfs/trails/equestrian-staging1010.pdf'>Equestrian Staging<br>Cold Creek Trail Head<br>Cold Creek Ct.</a>").addTo(map);
+const horseStaging5 = L.marker([33.92506, -117.16494], {icon: hrse1}).bindPopup("<a target='_blank' href='https://moval.gov/parks-comm-svc/pdfs/trails/equestrian-staging1010.pdf'>Equestrian Staging<br>Cottonwood<br>Cottonwood Ave & Quincy St</a>").addTo(map);
+const horseStaging6 = L.marker([33.86573, -117.20900], {icon: hrse1}).bindPopup("<a target='_blank' href='https://moval.gov/parks-comm-svc/pdfs/trails/equestrian-staging1010.pdf'>Equestrian Staging<br>Rancho Verde<br>Lasselle St & Kentucky Derby Dr</a>").addTo(map);
+ 
+const metrolink0 = L.marker([34.05602, -118.23589], {icon: unStn}).on('click', function() {window.open("https://www.unionstationla.com"); }).addTo(map);
+const magicMountain = L.marker([34.4253, -118.5972], {icon: mgcmntn}).on('click', function() {new Fountain(); setTimeout( function() { window.location.replace("https://www.google.com/search?q=theme+parks+in+southern+california")}, 14000)}).addTo(map).setZIndexOffset(98);
+
+ 
+const mileSquarePark = L.imageOverlay('iconsMap/ocparks.png', [[33.73763, -117.95721], [33.71620, -117.93138]],{interactive: true}).bindPopup("<a href='https://ocparks.com/parks-trails/mile-square-regional-park'>Mile Square Park</a>").addTo(map);
+const huntingtonPark = L.imageOverlay('iconsMap/ocparks.png', [[33.71118, -118.01508], [33.69466, -117.99264]],{interactive: true}).bindPopup("<a href='https://huntingtonbeachca.gov/residents/parks_facilities/parks/huntington-beach-central-park.cfm'>Huntington Central Park</a>").addTo(map);
+const orangeCircle = L.imageOverlay('iconsMap/ocparks.png', [[33.788608, -117.853689], [33.787315, -117.852337]],{interactive: true}).bindPopup("<a href='https://www.cityoforange.org/our-city/visitor-information/old-towne-orange'>Orange Circle</a>").addTo(map);
+const greatPark = L.imageOverlay('iconsMap/ocparks.png', [[33.67985, -117.74921], [33.66857, -117.73286]],{interactive: true}).bindPopup("<a href='https://www.cityofirvine.org/orange-county-great-park'>Great Park</a>").addTo(map);
+
+const skyDv = 'iconsMap/skydiveOverlay.png', imageBounds = [[33.762416, -117.214551], [33.768695, -117.211547]];
+const skyDive = L.imageOverlay(skyDv, imageBounds,{interactive: true}).bindPopup("<a target='_blank' href='https://skydiveperris.com/indoor'>Indoor SkyDiving!</a>").addTo(map);
+
+const cabazonDinosaurs = L.marker([33.92004, -116.77286], {icon: cbznDnsr}).on('click', function() {window.open("https://www.cabazondinosaurs.com/"); }).addTo(map).setZIndexOffset(98);
+
+const joshuaTree1 = L.imageOverlay('iconsMap/joshuaTree.png', [[33.96856, -116.02184], [33.71535, -115.70461]],{interactive: true}).bindPopup("<a target='_blank' href='https://www.google.com/search?q=Joshua+Tree+National+Park'>Joshua Tree National Park</a>").addTo(map);
+const joshuaTree2 = L.imageOverlay('iconsMap/joshuaTree2.png', [[34.10740, -116.20723], [33.91388, -115.91747]],{interactive: true}).bindPopup("<a target='_blank' href='https://www.google.com/search?q=Joshua+Tree+National+Park'>Joshua Tree National Park</a>").addTo(map);
+const joshuaTree3 = L.imageOverlay('iconsMap/joshuaTree3.png', [[33.94236, -116.13170], [33.74961, -115.90511]],{interactive: true}).bindPopup("<a target='_blank' href='https://www.google.com/search?q=Joshua+Tree+National+Park'>Joshua Tree National Park</a>").addTo(map);
+ 
+var myMovingMarker = L.Marker.movingMarker([[33.81342, -116.638364],[33.836834, -116.614074]], [300000], {icon: gondola}).on('click', function() {window.open("https://pstramway.com/"); }).addTo(map);
+myMovingMarker.start();
+
+//const mallZone = L.marker([33.938749, -117.26429], {icon: xmsTr}).bindPopup("<a target='_blank' href='https://www.google.com/search?q=Christmas+Tree+Lot+near+me'>Christmas Tree Lot</a>").addTo(map);
+//const airshowMARCHAFB = L.marker([33.8909, -117.2617], {icon: arshwMAFB}).bindPopup("<a target='_blank' href='https://socalairshow.com/'>MARCH AFB AIR SHOW!<br>April 22-23, 2023</a><br>").addTo(map3);
+//const airshowPTMUGU = L.marker([34.0856, -119.0609], {icon: arshwPMG}).bindPopup("<a target='_blank' href='https://socalairshow.com/'>PT. MUGU AIR SHOW!<br>March 18-19, 2023</a><br>").addTo(map);
+
+function addMap0() {
+const seaWorld = L.marker([32.7641, -117.2263], {icon: seaWrld}).on('click', function() {window.open("https://seaworld.com/san-diego/"); }).addTo(map0).setZIndexOffset(96);
+const legoland = L.marker([33.128063, -117.310882], {icon: legolnd}).on('click', function() {window.open("https://www.legoland.com/california"); }).addTo(map0).setZIndexOffset(97);
+const lakers = L.marker([34.04293, -118.26718], {icon: lkrs}).on('click', function() {window.open("https://www.nba.com/lakers?tmd=1"); }).addTo(map0).setZIndexOffset(90);
+const clippers = L.marker([34.04273, -118.26758], {icon: clprs}).on('click', function() {window.open("https://www.nba.com/clippers?tmd=1"); }).addTo(map0);
+const californiaAngels = L.marker([33.8003, -117.8827], {icon: caliAngls}).on('click', function() {window.open("https://www.mlb.com/angels"); }).addTo(map0).setZIndexOffset(1);
+}
+
+function addMap3() {
+const airshowHB = L.marker([33.64938, -117.99017], {icon: arshwPAHB}).bindPopup("<a target='_blank' href='https://pacificairshow.com/'>Pacific Airshow<br>Huntington Beach, 2023</a><br>").addTo(map3).setZIndexOffset(98);
+const pomonaFairplex = L.marker([34.0809, -117.7666], {icon: pmnFrplx}).on('click', function() {window.open(pmnFrplxLink); }).addTo(map3);
+const coachella = L.marker([33.6803, -116.1739], {icon: cchlla}).bindPopup("<a target='_blank' href='https://coachella.com/'>Coachella<br>April 14-16, 21-23, 2023</a><br>").addTo(map3);
+const battleshipIowa = L.marker([33.74220, -118.27727], {icon: bttlshpIwa}).on('click', function() {window.open("https://pacificbattleship.com/"); }).addTo(map3);	
+const PalmSpringsWindmills = L.marker([33.90780, -116.56694], {icon: plmSprngsWndmll}).on('click', function() {window.open("https://www.windmilltours.com/"); }).addTo(map3);
+const hotAirBalloon = L.marker([33.59061, -117.03621], {icon: hab}).on('click', function() {window.open("https://www.tvbwf.com/"); }).addTo(map3);
+const lagunaPlayhouse = L.marker([33.54740, -117.78260], {icon: lgnPlyhs}).on('click', function() {window.open("https://lagunaplayhouse.com/"); }).addTo(map3);
+const motteCarMuseum = L.marker([33.74338, -117.165399], {icon: motte}).on('click', function() {window.open("https://www.mottemuseum.com/"); }).addTo(map3);
+const speedway = L.marker([34.08652, -117.29302], {icon: spdwy}).on('click', function() {window.open("https://www.orangeshowspeedway.org/"); }).addTo(map3);
+const funZone = L.marker([33.60328, -117.9002], {icon: fnZn}).on('click', function() {window.open("https://www.balboafunzone.com/"); }).addTo(map3);
+const anaheimDucks = L.marker([33.8078, -117.8765], {icon: anhmDcks}).on('click', function() {window.open("https://www.nhl.com/ducks"); }).addTo(map3).setZIndexOffset(99);
+const longBeachGrandPrix = L.marker([33.76466, -118.18583], {icon: lbgp}).bindPopup("<a target='_blank' href='https://www.gplb.com'>Long Beach Grand Prix<br>April 16, 2023</a><br>").addTo(map3);
+const MulliganFamilyFunCenter = L.marker([33.55959, -117.20156], {icon: mffc}).on('click', function() {window.open("https://murrieta.mulliganfun.com/"); }).addTo(map3).setZIndexOffset(94);
+const FiestaVillage = L.marker([34.04935, -117.30322], {icon: FstVllg}).on('click', function() {window.open("https://www.fiestavillage.com/"); }).addTo(map3).setZIndexOffset(91);
+const vanBurenDriveIn = L.marker([33.91127, -117.43656], {icon: vnBrnDrvn}).on('click', function() {window.open("https://vanburendriveintheatre.com/"); }).addTo(map3).setZIndexOffset(92);
+const theRubidouxDriveIn = L.marker([34.00684, -117.423134], {icon: RbdxDrvn}).on('click', function() {window.open("https://www.rubidouxswapmeet.com/"); }).addTo(map3).setZIndexOffset(92);
+const coachHouse = L.marker([33.48209, -117.67151], {icon: cchHs}).bindPopup("<a target='_blank' href='https://thecoachhouse.com/ '>The Coach House</a><br>").addTo(map3);
+const griffithObservatory = L.marker([34.1184, -118.3004], {icon: grffth}).on('click', function() {window.open("https://griffithobservatory.org/"); }).addTo(map3);
+const adventureCity = L.marker([33.81521, -117.99228], {icon: advntrCty}).on('click', function() {window.open("https://www.adventurecity.com/"); }).addTo(map3);
+
+const caiforniaAdventure = L.marker([33.8061, -117.9209], {icon: caliAdvntr}).on('click', disney1031).addTo(map3);
+
+
+
+const SantaAnaZoo = L.marker([33.7436, -117.8425], {icon: zooSA}).on('click', function() {window.open("https://www.yelp.com/search?cflt=zoos&find_loc=Orange+County%2C+CA"); }).addTo(map3);
+const ocZoo = L.marker([33.79602, -117.75062], {icon: zooOC}).on('click', function() {window.open("https://www.ocparks.com/oc-zoo"); }).addTo(map3);
+
+const SanDiegoZoo = L.marker([32.73600, -117.1510], {icon: zooSD}).on('click', function() {window.open("https://zoo.sandiegozoo.org/"); }).addTo(map3);
+const SantabarbaraZoo = L.marker([34.4204, -119.6671], {icon: zooSB}).on('click', function() {window.open("https://www.sbzoo.org/"); }).addTo(map3);
+const scVillage = L.marker([33.93123, -117.62011], {icon: scVllg}).on('click', function() {window.open("https://www.scvillage.com/"); }).addTo(map3);
+const innerLimits = L.marker([33.42964, -117.61585], {icon: innrLmts}).on('click', function() {window.open("http://www.innerlimitssmokeshopsc.com/"); }).addTo(map3);
+const aquariumPacific = L.marker([33.7620, -118.1970], {icon: aqrmPcfc}).on('click', function() {window.open("https://www.aquariumofpacific.org"); }).addTo(map3);
+const belmontPark = L.marker([32.7709, -117.2519], {icon: blmntPrk}).on('click', function() {window.open("https://www.belmontpark.com/"); }).addTo(map3);
+const oldTown = L.marker([32.7542, -117.1970], {icon: oldTwn}).on('click', function() {window.open("https://www.oldtownsandiego.org/"); }).addTo(map3).setZIndexOffset(85);
+const littleItaly = L.marker([32.7241, -117.1684], {icon: lttlItly}).on('click', function() {window.open("https://www.littleitalysd.com/"); }).addTo(map3);
+const ridePerris = L.marker([33.77543, -117.25678], {icon: rdPerrs}).on('click', function() {window.open("https://www.rideperris.com"); }).addTo(map3);
+const missionInn = L.marker([33.98298, -117.37292], {icon: mssnInn}).on('click', function() {window.open("https://www.missioninn.com"); }).addTo(map3);
+const NationalOrangeShow = L.marker([34.08825, -117.29202], {icon: nos}).on('click', function() {window.open(nosLink); }).addTo(map3);
+const SouthCoastPlaza = L.marker([33.69102, -117.88898], {icon: scp}).on('click', function() {window.open("https://www.southcoastplaza.com/"); }).addTo(map3);
+const BigLeagueDreams = L.marker([33.75949, -117.18162], {icon: BgLgDrms}).on('click', function() {window.open("https://www.dropzonewaterpark.com/"); }).addTo(map3);
+const DropZoneWaterpark = L.marker([33.76359, -117.18204], {icon: DrpZnWtrprk}).on('click', function() {window.open("https://www.dropzonewaterpark.com/"); }).addTo(map3);
+const theGetty = L.marker([34.07737, -118.47305], {icon: thGtty}).on('click', function() {window.open("https://www.getty.edu/"); }).addTo(map3);
+const OCfair = L.marker([33.66534, -117.89826], {icon: OCfr}).on('click', function() {window.open("https://ocfair.com/"); }).addTo(map3); 
+const hollywoodSign = L.marker([34.1341, -118.3215], {icon: hllywdSgn}).bindPopup("<a target='_blank' href='https://www.hollywoodsign.org'>hollywoodSign</a>").addTo(map3); 
+const dodgers = L.marker([34.0739, -118.2400], {icon: ddgrs}).on('click', function() {window.open("https://www.mlb.com/dodgers"); }).addTo(map3);
+const autoclubSpeedway = L.marker([34.0847, -117.4893], {icon: autoclbSpdwy}).on('click', function() {window.open("https://www.autoclubspeedway.com/"); }).addTo(map3);
+const venturaCountyFair = L.marker([34.27557, -119.29935], {icon: vntraCntyFr}).on('click', function() {window.open("https://venturacountyfair.org/"); }).addTo(map3);
+const mtRubidoux = L.marker([33.9839, -117.3931], {icon: mtRbdu}).on('click', function() {window.open("https://www.riversideca.gov/park_rec/facilities-parks/mt-rubidoux"); }).addTo(map3).setZIndexOffset(101);
+const greatWolfLodge = L.marker([33.77960, -117.91570], {icon: grtWlfLdg}).on('click', function() {window.open("https://www.greatwolf.com"); }).addTo(map3);
+const nickelNickel = L.marker([33.77751, -117.91706], {icon: arc}).on('click', function() {window.open("https://www.google.com/search?q=arcades+near+me"); }).addTo(map3);
+const montage = L.marker([33.51463, -117.75721], {icon: mntg}).on('click', function() {window.open("https://www.montagehotels.com"); }).addTo(map3);
+const oceansEleven = L.marker([33.20047, -117.36883], {icon: ocnsElvn}).on('click', function() {window.open("https://www.oceans11.com"); }).addTo(map3);
+const PiratesDinnerAdventure = L.marker([33.85353, -117.99730], {icon: pirate}).on('click', function() {window.open("https://piratesdinneradventureca.com/"); }).addTo(map3);
+const RenaissanceFaire = L.marker([34.111347, -117.95034], {icon: RnssncFr}).on('click', function() {window.open("https://renfair.com/socal/"); }).addTo(map3);
+const petcoPark = L.marker([32.70740, -117.15791], {icon: ptcPrk}).on('click', function() {window.open("https://petcoparkevents.com/"); }).addTo(map3);
+const pacificParkPier = L.marker([34.00852, -118.49791], {icon: pcfcPrkPr}).on('click', function() {window.open("https://pacpark.com/"); }).addTo(map3);
+const mcFaddenBikeRepair = L.marker([33.73803, -117.91973], {icon: mcFddn}).on('click', function() {window.open("https://goo.gl/maps/2i4YnJ3aCtadqQyg9"); }).addTo(map3).setZIndexOffset(102);
+const uclaSchool = L.marker([34.0699, -118.4438], {icon: ucla}).on('click', function() {window.open("https://ucla.edu"); }).addTo(map3);
+const uscSchool = L.marker([34.0224, -118.2851], {icon: usc}).on('click', function() {window.open("https://usc.edu"); }).addTo(map3);
+const hillcrest = L.marker([32.74825, -117.16043], {icon: hllcrst}).on('click', function() {window.open("https://www.fabuloushillcrest.com/"); }).addTo(map3).setZIndexOffset(86);
+const snapdragonStadium = L.marker([32.78399614779498, -117.12243627191607], {icon: snpdrgnStdm}).on('click', function() {window.open("https://www.snapdragonstadium.com/events"); }).addTo(map3).setZIndexOffset(82);
+}
+
+function addMap2() {
+const paseoMall = L.marker([34.41924, -119.69994], {icon: pseoMll}).on('click', function() {window.open("https://paseonuevoshopping.com/directory/"); }).addTo(map2);
+const SuperiorGrocers = L.marker([33.93751, -117.24659], {icon: SprrGrcrs}).on('click', function() {window.open("https://superiorgrocers.com"); }).addTo(map2);
+const restaurantJoses = L.marker([33.94688, -117.26201], {icon: rstrntJss}).on('click', function() {window.open("https://josesmexicanfood.com/menu/"); }).addTo(map2);
+const militarySurplus1 = L.marker([33.86800, -117.88130], {icon: mltrySrpls}).on('click', function() {window.open("https://www.google.com/maps?q=army+surplus+near+me"); }).addTo(map2);
+const militarySurplus2 = L.marker([33.80926, -117.99350], {icon: mltrySrpls}).on('click', function() {window.open("https://www.google.com/maps?q=army+surplus+near+me"); }).addTo(map2);
+const militarySurplus3 = L.marker([33.78702, -117.85289], {icon: mltrySrpls}).on('click', function() {window.open("https://www.google.com/maps?q=army+surplus+near+me"); }).addTo(map2);
+const medievalTimes = L.marker([33.85126, -117.99721], {icon: mdvlTms}).on('click', function() {window.open("https://www.medievaltimes.com"); }).addTo(map2);
+const castlePark = L.marker([33.903265, -117.468017], {icon: cstle}).on('click', function() {window.open("https://www.castlepark.com"); }).addTo(map2);
+const snowValley = L.marker([34.2249, -117.0362], {icon: snwVlly}).on('click', function() {window.open("https://www.bigbearmountainresort.com/mountain-information"); }).addTo(map2);
+const snowSummit = L.marker([34.239359, -116.895189], {icon: snwSmmt}).on('click', function() {window.open("https://www.bigbearmountainresort.com/mountain-information"); }).addTo(map2);
+const bearMtn = L.marker([34.21402, -116.85141], {icon: brMtn}).on('click', function() {window.open("https://www.bigbearmountainresort.com/mountain-information"); }).addTo(map2);
+const railMuseum = L.marker([33.760164, -117.23169], {icon: railMsm}).on('click', function() {window.open("https://socalrailway.org/"); }).addTo(map2);
+const perrisSpeedway = L.marker([33.8489, -117.2022], {icon: prrsSpdwy}).on('click', function() {window.open("http://www.perrisautospeedway.com/"); }).addTo(map2);
+const socalFair = L.marker([33.851341, -117.204161], {icon: sclFr}).on('click', function() {window.open("https://www.socalfair.com/"); }).addTo(map2);
+const riversideFair = L.marker([33.706581, -116.224429], {icon: rvrsdeFr}).on('click', function() {window.open("https://www.datefest.org/"); }).addTo(map2);
+const KnottsBerryFarm = L.marker([33.844, -118.000], {icon: KnttsBrryFrm}).on('click', function() {window.open("https://www.knotts.com"); }).addTo(map2);
+const Disneyland = L.marker([33.8121, -117.9190], {icon: Dsnylnd}).on('click', function() {window.open("https://www.disney.com/"); }).addTo(map2);
+const mcDonalds = L.marker([34.12552, -117.29455], {icon: mcd1}).on('click', function() {window.open("https://www.youtube.com/watch?v=N_t5PGSJD9o&ab_channel=YouTubeMovies"); }).addTo(map2);
+const queenMary = L.marker([33.7526, -118.1903], {icon: qnMry}).on('click', function() {window.open("https://queenmary.com/"); }).addTo(map2);
+const irvineSpectrum = L.marker([33.6509, -117.7441], {icon: rvnSpctrm}).on('click', function() {window.open("https://www.irvinespectrumcenter.com/"); }).addTo(map2);
+const universalStudios = L.marker([34.1381, -118.3534], {icon: unvrslStds}).on('click', function() {window.open("https://www.universalstudioshollywood.com/web/en/us/"); }).addTo(map2);
+const villageFest = L.marker([33.82312, -116.54684], {icon: vllgFst}).on('click', function() {window.open("https://villagefest.org/"); }).addTo(map2);
+const palmSprings = L.marker([33.82587, -116.53906], {icon: plmSprngs}).on('click', function() {window.open("https://visitpalmsprings.com/things-to-do-in-palm-springs/"); }).addTo(map2);
+const moValAmphitheater = L.marker([33.91618, -117.263384], {icon: moValAmp}).on('click', function() {window.open("http://www.moval.org/amphitheater/"); }).addTo(map2);
+const UCRiverside = L.marker([33.97370, -117.32810], {icon: UCR}).on('click', function() {window.open("https://registrar.ucr.edu/registering/catalog"); }).addTo(map2);
+const lasVegas = L.marker([36.099988, -115.173465], {icon: lsVgs}).on('click', function() {window.open("https://www.google.com/search?q=las+vegas+tonight"); }).addTo(map).setZIndexOffset(101);
+const midwayMuseum = L.marker([32.7137, -117.1751], {icon: mdwyMsm}).on('click', function() {window.open("https://www.midway.org/"); }).addTo(map2);
+const artWalkLAguna = L.marker([33.54272, -117.78535], {icon: artWlk}).bindPopup("<a target='_blank' href='https://www.firstthursdaysartwalk.org/'>🎨 Laguna Beach Art Walk<br>First Thursday of Month</a><br>").addTo(map2);
+const rogersGardens = L.marker([33.61412, -117.86695], {icon: rgrsGrdns}).on('click', function() {window.open("https://www.rogersgardens.com"); }).addTo(map2);
+const lasBrisas = L.marker([33.54328, -117.78830], {icon: lsBrss}).on('click', function() {window.open("https://www.lasbrisaslagunabeach.com/"); }).addTo(map2);
+const gardenWalk = L.marker([33.80405, -117.91204], {icon: grdnWlk}).on('click', function() {window.open("https://anaheimgardenwalk.com/"); }).addTo(map2);
+const anaheimConventionCenter = L.marker([33.79843, -117.92269], {icon: acc}).on('click', function() {window.open("https://www.anaheim.net/1117/Anaheim-Convention-Center"); }).addTo(map2);
+const ocModelTrains = L.marker([33.66248, -117.93616], {icon: train1}).on('click', function() {window.open("https://ocmetrains.org/"); }).addTo(map2);
+const IrvineParkRailroad = L.marker([33.79631, -117.75409], {icon: train2}).on('click', function() {window.open("http://www.irvineparkrailroad.com/"); }).addTo(map2);
+const stearnsWharf = L.marker([34.40814, -119.68493], {icon: strnsWhrf}).on('click', function() {window.open("https://stearnswharf.org/merchants/"); }).addTo(map2);
+const longBeachConvCent = L.marker([33.76543, -118.18966], {icon: longBeachCC}).on('click', function() {window.open("https://www.longbeachcc.com"); }).addTo(map2);
+const beveryCenter = L.marker([34.0752, -118.3774], {icon: bevCent}).on('click', function() {window.open("https://beverlycenter.com/"); }).addTo(map2);
+const sofiStadium = L.marker([33.9535, - 118.3390], {icon: sofiStdm}).on('click', function() {window.open("https://www.sofistadium.com/"); }).addTo(map2); 
+const LAforum = L.marker([33.95821, -118.34185], {icon: LAfrm}).on('click', function() {window.open("https://thekiaforum.com"); }).addTo(map2); 
+const hollywoodPark = L.marker([33.95339, -118.33708], {icon: hllywdPrk}).on('click', function() {window.open("https://hollywoodparklife.com"); }).addTo(map2); 
+const LAXinfo = L.marker([33.94895, -118.44490], {icon: lax}).on('click', function() {window.open("https://www.flylax.com/"); }).addTo(map2);
+const LAXcr = L.imageOverlay('iconsMap/compassRoseLAX.png', [[34.08142, -118.57681], [33.78530, -118.26644]],{interactive: false}).addTo(mapA);
+const SNAinfo = L.marker([33.6762, -117.8675], {icon: sna}).on('click', function() {window.open("https://www.ocair.com/"); }).addTo(map2);
+const SNAcr = L.imageOverlay('iconsMap/compassRoseSNA.png', [[33.736313, -117.965562], [33.596891, -117.772859]],{interactive: false}).addTo(mapA);
+const SBAinfo = L.marker([34.4272, -119.8399], {icon: sba}).on('click', function() {window.open("https://flysba.santabarbaraca.gov/?utm_source=FlySBA&utm_medium=Redirect&utm_campaign=ReferralTracking/"); }).addTo(map2);
+const SBAcr = L.imageOverlay('iconsMap/compassRoseSBA.png', [[34.372997, -119.769516], [34.481002, -119.916458]],{interactive: false}).addTo(mapA);
+const PSPinfo = L.marker([33.8303, -116.5070], {icon: psp}).on('click', function() {window.open("https://palmspringsairport.com/"); }).addTo(map2);
+const PSPcr = L.imageOverlay('iconsMap/compassRosePSP.png', [[33.773842, -116.435852], [33.884041, -116.581764]],{interactive: false}).addTo(mapA);
+const vorPSPinfo = L.marker([33.868243, -116.430645], {icon: vorpsp}).on('click', function() {window.open("https://palmspringsairport.com/"); }).addTo(map2);
+const vorPSPcr = L.imageOverlay('iconsMap/compassRoseVORpsp.png', [[34.04771, -116.676178], [33.694736, -116.27243]],{interactive: false}).addTo(mapA);
+
+const CRQinfo = L.marker([33.127645, -117.278924], {icon: crq}).on('click', function() {window.open("https://www.sandiegocounty.gov/dpw/airports/palomar.html"); }).addTo(map2);
+const CRQcr = L.imageOverlay('iconsMap/compassRoseCRQ.png', [[33.169982, -117.32875], [33.084364, -117.227982]],{interactive: false}).addTo(mapA);
+
+const santaAnaCityHall = L.marker([33.74978, -117.87317], {icon: ctyHll}).on('click', function() {window.open("https://windrose.farm/cities/santaAna"); }).addTo(map2);
+const movalCityHall = L.marker([33.91475, -117.26149], {icon: ctyHll}).on('click', function() {window.open("https://windrose.farm/cities/morenoValley"); }).addTo(map2);
+const lagWoodsCityHall = L.marker([33.61060, -117.72349], {icon: ctyHll}).on('click', function() {window.open("https://windrose.farm/cities/lagunaWoods"); }).addTo(map2);
+const lagBchCityHall = L.marker([33.54550, -117.78133], {icon: ctyHll}).on('click', function() {window.open("https://windrose.farm/cities/lagunaBeach"); }).addTo(map2);
+ 
+}
+
+addMap0();
+addMap2();
+addMap3();
+
+
+
+var longBeachGP = [
+[33.76439, -118.18393],
+[33.76539, -118.18345],
+[33.76634, -118.18304],
+[33.76626, -118.18352],
+[33.76475, -118.18393],
+[33.76409, -118.18474],
+[33.76478, -118.18560],
+[33.76566, -118.18575],
+[33.76584, -118.18883],
+[33.76580, -118.1923],
+[33.76372, -118.19237],
+[33.76306, -118.19271],
+[33.76500, -118.19647],
+[33.76371, -118.19731],
+[33.76310, -118.19630],
+[33.76283, -118.19618],
+[33.76278, -118.19596],
+[33.76302, -118.19576],
+[33.76313, -118.19523],
+[33.76343, -118.19475],
+[33.76372, -118.19456],
+[33.76289, -118.19286],
+[33.76182, -118.19015],
+[33.76173, -118.18921],
+[33.76197, -118.18781],
+[33.76370, -118.18480],
+[33.76439, -118.18393]
+];
+
+var longBeachGrandPrix = L.polyline(longBeachGP, {color: 'blue', weight:10}).addTo(map);
+
+
+var blueLine = [
+[32.86956, -117.21397],
+[32.87717, -117.21397],
+[32.87766, -117.21397],
+[32.87829, -117.21412],
+[32.87888, -117.21457],
+[32.87958, -117.21543],
+[32.88090, -117.21822],
+[32.88108, -117.21923],
+[32.88119, -117.22146],
+[32.88137, -117.22202],
+[32.88230, -117.22483],
+[32.88232, -117.22569],
+[32.88217, -117.22663],
+[32.88023, -117.23135],
+[32.87974, -117.23187],
+[32.87911, -117.23202],
+[32.87771, -117.23174],
+[32.87720, -117.23142],
+[32.87668, -117.23069],
+[32.87637, -117.22991],
+[32.87576, -117.22946],
+[32.87511, -117.22951],
+[32.87342, -117.23032],
+[32.87275, -117.23036],
+[32.87165, -117.23002],
+[32.86895, -117.22994],
+[32.86844, -117.23026],
+[32.86779, -117.23043],
+[32.86529, -117.23045],
+[32.86470, -117.23032],
+[32.86356, -117.22971],
+[32.86282, -117.22953],
+[32.85666, -117.23028],
+[32.85462, -117.23103],
+[32.84931, -117.23444],
+[32.84588, -117.23563],
+[32.84279, -117.23563],
+[32.84109, -117.23515],
+[32.83709, -117.23275],
+[32.83406, -117.23198],
+[32.83135, -117.23035],
+[32.82746, -117.23069],
+[32.82479, -117.23000],
+[32.82292, -117.22876],
+[32.81383, -117.21881],
+[32.81095, -117.21693],
+[32.80864, -117.21598],
+[32.79559, -117.20809],
+[32.79213, -117.20663],
+[32.79071, -117.20627],
+[32.78812, -117.20636],
+[32.77884, -117.20800],
+[32.77719, -117.20795],
+[32.75240, -117.19865],
+[32.74678, -117.19391],
+[32.74577, -117.19250],
+[32.73881, -117.17984],
+[32.73715, -117.17808],
+[32.73229, -117.17388],
+[32.72419, -117.17024],
+[32.72209, -117.16996],
+[32.71613, -117.16982],
+[32.71596, -117.16967],
+[32.71591, -117.16925],
+[32.71597, -117.16906],
+[32.71606, -117.16898],
+[32.71670, -117.16861],
+[32.71675, -117.16845],
+[32.71669, -117.16738],
+[32.71676, -117.15683],
+[32.71672, -117.15653],
+[32.71676, -117.15593],
+[32.71676, -117.15469],
+[32.71669, -117.15447],
+[32.71572, -117.15379],
+[32.71563, -117.15375],
+[32.70682, -117.15370],
+[32.70659, -117.15362],
+[32.70526, -117.15292],
+[32.70497, -117.15289],
+[32.70428, -117.15318],
+[32.70301, -117.15318],
+[32.70234, -117.15271],
+[32.69295, -117.13917],
+[32.69230, -117.13763],
+[32.69161, -117.13389],
+[32.69104, -117.13220],
+[32.69045, -117.13121],
+[32.67974, -117.11573],
+[32.67873, -117.11478],
+[32.65577, -117.10564],
+[32.65496, -117.10510],
+[32.65317, -117.10328],
+[32.65249, -117.10280],
+[32.64920, -117.10145],
+[32.64762, -117.10113],
+[32.64324, -117.10053],
+[32.64205, -117.10027],
+[32.60439, -117.08570],
+[32.60144, -117.08441],
+[32.59862, -117.08392],
+[32.58285, -117.08379],
+[32.58162, -117.08349],
+[32.58003, -117.08269],
+[32.57862, -117.08128],
+[32.57014, -117.06779],
+[32.56197, -117.05492],
+[32.56024, -117.05204],
+[32.55369, -117.03960],
+[32.55159, -117.03677],
+[32.54780, -117.03231],
+[32.54688, -117.03119],
+[32.54612, -117.03094],
+[32.54518, -117.03006]
+];
+
+var blueLineSD = L.polyline(blueLine, {color: 'blue'}).addTo(map);
+
+var orangeLine = [
+[32.71673, -117.16580],
+[32.71678, -117.15684],
+[32.71672, -117.15652],
+[32.71673, -117.15562],
+[32.71672, -117.15470],
+[32.71664, -117.15450],
+[32.71566, -117.15382],
+[32.70671, -117.15376],
+[32.70538, -117.15293],
+[32.70524, -117.15252],
+[32.70534, -117.12549],
+[32.70543, -117.12512],
+[32.70571, -117.12462],
+[32.70615, -117.12432],
+[32.70646, -117.12426],
+[32.70797, -117.12404],
+[32.70849, -117.12384],
+[32.70891, -117.12323],
+[32.70905, -117.12246],
+[32.70881, -117.12167],
+[32.70844, -117.12129],
+[32.70823, -117.12114],
+[32.70711, -117.12066],
+[32.70669, -117.12023],
+[32.70645, -117.11972],
+[32.70645, -117.11972],
+[32.70634, -117.11549],
+[32.70656, -117.11424],
+[32.70748, -117.11244],
+[32.70871, -117.11036],
+[32.70907, -117.10933],
+[32.70932, -117.10504],
+[32.70918, -117.10410],
+[32.70762, -117.09959],
+[32.70752, -117.09777],
+[32.70940, -117.09155],
+[32.70958, -117.09060],
+[32.70936, -117.07097],
+[32.70940, -117.06896],
+[32.71162, -117.05092],
+[32.71225, -117.04935],
+[32.71292, -117.04851],
+[32.72695, -117.03671],
+[32.72840, -117.03607],
+[32.73002, -117.03538],
+[32.73588, -117.03148],
+[32.73754, -117.03105],
+[32.74415, -117.03053],
+[32.74509, -117.02993],
+[32.74741, -117.02654],
+[32.74765, -117.02603],
+[32.74775, -117.02546],
+[32.74793, -117.02397],
+[32.74819, -117.02325],
+[32.74951, -117.02143],
+[32.75024, -117.02004],
+[32.75115, -117.01836],
+[32.75238, -117.01684],
+[32.75429, -117.01631],
+[32.75485, -117.01650],
+[32.75592, -117.01749],
+[32.75646, -117.01757],
+[32.75740, -117.01710],
+[32.75801, -117.01676],
+[32.75872, -117.01693],
+[32.77191, -117.02448],
+[32.77296, -117.02438],
+[32.77347, -117.02377],
+[32.77705, -117.01744],
+[32.77850, -117.01553],
+[32.78131, -117.01177],
+[32.78198, -117.01072],
+[32.78252, -117.00954],
+[32.78545, -117.00150],
+[32.78562, -117.00041],
+[32.78561, -116.99966],
+[32.78479, -116.99533],
+[32.78437, -116.99433],
+[32.78382, -116.99354],
+[32.78279, -116.99265],
+[32.78181, -116.99201],
+[32.78141, -116.99161],
+[32.77975, -116.98908],
+[32.77955, -116.98846],
+[32.77931, -116.98645],
+[32.77961, -116.98554],
+[32.78003, -116.98500],
+[32.78100, -116.98420],
+[32.78176, -116.98317],
+[32.78227, -116.98211],
+[32.78284, -116.98059],
+[32.78333, -116.97986],
+[32.78624, -116.97718],
+[32.78720, -116.97662],
+[32.78905, -116.97609],
+[32.79335, -116.97622],
+[32.79422, -116.97658],
+[32.79668, -116.97648],
+[32.80452, -116.97570]
+];
+
+var orangeLineSD = L.polyline(orangeLine, {color: 'orange'}).addTo(map);
+
+
+
+
+var greenLine = [
+[32.70587, -117.15343],
+[32.70555, -117.15326],
+[32.70539, -117.15323],
+[32.70527, -117.15331],
+[32.70522, -117.15361],
+[32.70521, -117.15506],
+[32.70524, -117.15545],
+[32.70524, -117.15630],
+[32.70541, -117.15699],
+[32.71140, -117.16796],
+[32.71276, -117.16927],
+[32.71475, -117.16995],
+[32.71872, -117.17009],
+[32.72407, -117.17039],
+[32.73220, -117.17413],
+[32.73867, -117.18005],
+[32.74658, -117.19416],
+[32.75283, -117.19845],
+[32.76070, -117.20155],
+[32.76237, -117.20099],
+[32.76349, -117.19837],
+[32.76367, -117.19537],
+[32.76320, -117.19490],
+[32.76244, -117.19378],
+[32.76208, -117.19241],
+[32.76211, -117.19095],
+[32.76453, -117.18134],
+[32.76457, -117.17868],
+[32.76482, -117.17722],
+[32.76576, -117.17443],
+[32.76569, -117.17319],
+[32.76522, -117.17053],
+[32.76515, -117.16984],
+[32.76685, -117.16435],
+[32.76768, -117.16281],
+[32.76822, -117.16096],
+[32.76999, -117.15886],
+[32.77057, -117.15714],
+[32.77057, -117.15607],
+[32.76999, -117.15406],
+[32.77013, -117.15268],
+[32.77102, -117.15034],
+[32.77117, -117.14946],
+[32.77154, -117.14637],
+[32.77210, -117.14491],
+[32.77306, -117.14345],
+[32.77347, -117.14259],
+[32.77370, -117.14147],
+[32.77412, -117.13915],
+[32.77503, -117.13524],
+[32.77525, -117.13366],
+[32.77670, -117.12930],
+[32.77713, -117.12845],
+[32.77923, -117.12609],
+[32.77966, -117.12525],
+[32.78064, -117.12259],
+[32.78082, -117.12149],
+[32.78154, -117.11253],
+[32.78131, -117.11173],
+[32.77984, -117.10910],
+[32.77950, -117.10796],
+[32.77924, -117.10389],
+[32.77947, -117.10256],
+[32.78068, -117.09988],
+[32.78088, -117.09879],
+[32.77980, -117.09546],
+[32.77980, -117.09441],
+[32.78010, -117.09242],
+[32.78027, -117.08499],
+[32.77920, -117.07734],
+[32.77889, -117.07617],
+[32.77741, -117.07497],
+[32.77401, -117.07355],
+[32.77304, -117.07282],
+[32.77286, -117.07136],
+[32.77286, -117.06875],
+[32.77341, -117.06755],
+[32.77425, -117.06682],
+[32.77483, -117.06659],
+[32.77621, -117.06689],
+[32.77705, -117.06667],
+[32.77839, -117.06491],
+[32.77872, -117.06296],
+[32.77855, -117.06174],
+[32.77759, -117.05781],
+[32.77655, -117.05232],
+[32.77510, -117.04833],
+[32.77394, -117.04661],
+[32.77293, -117.04494],
+[32.77302, -117.02480],
+[32.78240, -117.01066],
+[32.78560, -117.00154],
+[32.78394, -116.99473],
+[32.77998, -116.98666],
+[32.78387, -116.98074],
+[32.78885, -116.97653],
+[32.82540, -116.97680],
+[32.82653, -116.98176],
+[32.82990, -116.98384],
+[32.83888, -116.98375],
+[32.84130, -116.98136],
+];
+
+var greenLineSD = L.polyline(greenLine, {color: 'green'}).addTo(map);
+
+
+
+
+var metroAline = [
+[34.04860, -118.25882],
+[34.04007, -118.26673],
+[34.03359, -118.27039],
+[34.02674, -118.25535], 
+[34.01996, -118.24310], 
+[34.00350, -118.24336], 
+[33.98917, -118.24335], 
+[33.97402, -118.24328], 
+[33.95961, -118.24322], 
+[33.94222, -118.24316], 
+[33.89748, -118.22429], 
+[33.87578, -118.22274], 
+[33.84850, -118.21128], 
+[33.81867, -118.19589], 
+[33.80706, -118.18986], 
+[33.78951, -118.18956], 
+[33.78184, -118.18937], 
+[33.77370, -118.18937], 
+[33.76893, -118.18938], 
+[33.76835, -118.18930],
+[33.76813, -118.18950],
+[33.76817, -118.19008], 
+[33.76804, -118.19349],
+[33.76825, -118.19371],
+[33.77609, -118.19379], 
+[33.77657, -118.19353], 
+[33.77656, -118.18965],
+[33.77662, -118.18950], 
+[33.77683, -118.18940],
+];
+
+
+
+var metroBline = [
+[34.16850, -118.37656],
+[34.13903, -118.36259],  
+[34.10173, -118.33930],  
+[34.10133, -118.32568],  
+[34.10161, -118.30913],  
+[34.09834, -118.29156],  
+[34.09048, -118.29206],  
+[34.07661, -118.29203],
+[34.06265, -118.29059],
+[34.05689, -118.27569],
+[34.04807, -118.25838],
+[34.04818, -118.25197],
+[34.05499, -118.24600],
+[34.05584, -118.23612],
+
+];
+
+var metroCline = [
+[33.89467, -118.36918],  
+[33.90532, -118.38316],  
+[33.91621, -118.38677],  
+[33.92331, -118.38763],  
+[33.92968, -118.37722],  
+[33.93347, -118.35196],  
+[33.92523, -118.32651],  
+[33.92870, -118.29143],  
+[33.92749, -118.26513],  
+[33.92500, -118.21021],  
+[33.91310, -118.14112],  
+[33.91413, -118.10405],
+];
+
+var metroDline = [
+[34.04851, -118.25950],
+[34.06194, -118.28982],
+[34.06159, -118.30097],
+[34.06213, -118.30891],
+];
+
+var metroEline = [
+[34.01401, -118.49138],  
+[34.02316, -118.48040],  
+[34.02798, -118.46921],  
+[34.03171, -118.45292],  
+[34.03542, -118.43428],  
+[34.03682, -118.42454],  
+[34.02930, -118.40420],  
+[34.02790, -118.38886],  
+[34.02636, -118.37210],  
+[34.02481, -118.35518],  
+[34.02398, -118.34671],  
+[34.01828, -118.30844],  
+[34.01827, -118.29234],  
+[34.01823, -118.28575],  
+[34.02205, -118.27819],  
+[34.02911, -118.27361], 
+[34.04017, -118.26680],
+[34.04806, -118.25943],
+
+];
+
+var metroKline = [
+[34.02198, -118.33483],
+[34.00955, -118.33535],  
+[34.00458, -118.33270],  
+[33.98818, -118.33083],  
+[33.97524, -118.33607],  
+[33.96716, -118.35150],  
+[33.96205, -118.37438],
+];
+
+var metroLline = [
+[34.03342, -118.15500],  
+[34.03338, -118.16116],  
+[34.03331, -118.16814],  
+[34.03429, -118.19218],  
+[34.04381, -118.20996],  
+[34.04732, -118.21883],  
+[34.04763, -118.22590],
+[34.05620, -118.23650],   
+[34.06391, -118.23591],  
+[34.08105, -118.22031],  
+[34.08750, -118.21304],  
+[34.09839, -118.20651],  
+[34.11117, -118.19265],  
+[34.11527, -118.15780],  
+[34.13353, -118.14810],  
+[34.14199, -118.14825],  
+[34.14797, -118.14769],  
+[34.15182, -118.13159],  
+[34.15241, -118.11393],  
+[34.14842, -118.08124],  
+[34.14272, -118.02897],  
+[34.13316, -118.00327],  
+[34.13251, -117.96749],  
+[34.12902, -117.93245],  
+[34.13580, -117.90677],  
+[34.13680, -117.89174],
+];
+
+
+var MetroAblue = L.polyline(metroAline, {color: 'blue'}).addTo(map);
+var MetroBred = L.polyline(metroBline, {color: 'red'}).addTo(map);
+var MetroCgreen = L.polyline(metroCline, {color: 'green'}).addTo(map);
+var MetroDpurple = L.polyline(metroDline, {color: 'purple'}).addTo(map);
+var MetroEblue = L.polyline(metroEline, {color: 'dodgerblue'}).addTo(map);
+var MetroKpurple = L.polyline(metroKline, {color: 'fuchsia'}).addTo(map);
+var MetroLgold = L.polyline(metroLline, {color: 'yellow'}).addTo(map);
+
+
+const skateParksList = {
+	City_Park:'33.875057, -117.553632',
+	Deleo:'33.7439510, -117.4635761',
+	McVicker_Canyon:'33.686954, -117.399854',
+	Serenity:'33.623202, -117.30341',
+	Summerly:'33.651493, -117.3084681',
+	Menifee:'33.679523, -117.2211892',
+	Perris:'33.82258, -117.2205453',
+	March_Field:'33.89721, -117.2473278',
+	Moreno_Valley:'33.9252, -117.2603837',
+	Repplier:'33.9313, -116.8777453',
+	Beaumont:'33.9343, -116.9736369',
+	The_7th_St:'34.02699, -117.0638877',
+	Yucaipa:'34.0350, -117.0925219',
+	Redlands:'34.0594, -117.1682711',
+	Town:'34.2438, -116.909192',
+	BigBear:'34.2512, -116.82489',
+	Bobby_Bonds:'33.97502, -117.3559056',
+	Jurupa_Valley:'34.00137, -117.4747895',
+	Kessler:'34.046860, -117.4011062',
+	Margart_Todd:'34.10198, -117.3740419',
+	Park:'34.116231, -117.2944558',
+	Blair:'34.15040, -117.3174062',
+	Fergusson:'34.15812, -117.42073',
+	Fontana_North:'34.15345, -117.4661390',
+	Crestline:'34.242701, -117.2769860',
+	Idyllwild:'33.741118, -116.7193978',
+	Dateland:'33.673218, -116.1736447',
+	La_Quinta_X:'33.71393, -116.2770283',
+	Civic_Center:'33.7320023, -116.382060',
+	Ocotillo:'33.8064211, -116.4616369',
+	Palm_Springs:'33.8163221, -116.5240813',
+	Desert_Hot_Springs:'33.9566661, -116.5087488',
+	Cabazon:'33.909038, -116.7821335',
+	Etnies:'33.67059, -117.66016',
+	San_Clemente:'33.44532, -117.58466',
+	Laguna_Niguel:'33.55814, -117.71715' ,
+	Laguna_Hills:'33.59287, -117.70074' ,
+	Costa_Mesa:'33.66956, -117.89423' ,
+	Vans:'33.73507, -117.99828',
+
+};
+
+const keys = Object.keys(skateParksList);
+const values = Object.values(skateParksList);
+
+function addSkate() {
+for (let i = 0; i < keys.length; i++) {
+	const sktPrk = new mapIcon({iconUrl: 'iconsMap/skate' + Math.floor(Math.random() * 11) + '.png'});
+	sn = keys[i].replace(/_/g, " ");
+	sg = keys[i].replace(/_/g, "+");
+	sl = values[i].split(" ");
+	sl[0] = parseFloat(sl[0]);
+	sl[1] = parseFloat(sl[1]);
+	L.marker(sl, {icon: sktPrk}).bindPopup("<a target='_blank' href='https://www.google.com/search?q="+sg+"+skate+park'>🛼 "+sn+" Skate Park 🛹</a>").addTo(skateParks);
+}}
+
+addSkate();
+
+
+function getLocation() {
+	if (navigator.geolocation) {
+		navigator.geolocation.getCurrentPosition(showPosition, showError);
+		document.getElementById("ft").style.display = "block";
+		document.getElementById("parkingBtn").style.display = "block";
+	} else {
+		console.log("Geolocation is not supported by this browser.");
+	}
+}
+
+
+function showPosition(position) {
+	map.setView(new L.LatLng(position.coords.latitude, position.coords.longitude), 15);
+	var circle = L.circle([position.coords.latitude, position.coords.longitude], {color: '#A020F0',fillColor: '#CBC3E3',fillOpacity: 0.5,radius: 30}).addTo(map);
+}
+
+
+function showError(error) {
+switch(error.code) {
+case error.PERMISSION_DENIED:
+console.log("User denied the request for Geolocation.");
+break;
+case error.POSITION_UNAVAILABLE:
+console.log("Location information is unavailable.");
+break;
+case error.TIMEOUT:
+console.log("The request to get user location timed out.");
+break;
+case error.UNKNOWN_ERROR:
+console.log("An unknown error occurred.");
+break;
+}}
+
+ function latlonTruck(id,imgSrc) {
+window.scrollTo(0, 0);
+	 map.setZoom(17);
+	 cntr =  map.getCenter();
+	 cnt = L.latLng(cntr.lat,cntr.lng);
+	const popup = L.popup().setLatLng(cnt).setContent("<a onclick='addTruck()' href='javascript:void(0);' ><img src='iconsMap/foodTr14.png'></a>").openOn(map);
+	}
+
+ function selectTruck(id,imgSrc) {
+	var nodes = document.getElementById('modal-header').getElementsByTagName("img");
+	for(var i=0; i<nodes.length; i++) { nodes[i].style.opacity = 1; }
+	document.getElementById(id).style.opacity = 0;
+	document.getElementById("type").innerHTML = "<div' ><img style='width:120px;' src='" +imgSrc+ "'><p style='font-family: `Trirong`, serif; border: 3px solid #008CBA;padding:5px;border-radius:8px;position:absolute;bottom:70px;right:45px;text-align:right;font-size:33px;'><a target='_blank' href='addTruck?t=" + id + "&lat=" + cntr.lat.toFixed(5) + "&lng=" + cntr.lng.toFixed(5) + "'>Sell It!</a></p></div>";
+
+	}
+
+
+var modal = document.getElementById("myModal");
+window.onclick = function(event) {  if (event.target == modal) {modal.style.display = "none";}}
+function addTruck() {modal.style.display = "block";}
+
+
+
+
+ <?php
+
+if ($_SESSION["lmt"] > 2) {echo "document.getElementById('ft').style.display = 'none';";}
+
+?>
+
+
+
+
+class Fountain {
+  constructor() {
+    this.limit = 35;
+    this.particles = [];
+    this.autoAddParticle = false;
+    this.height = document.documentElement.clientHeight;
+    this.sizes = [15, 20, 25, 35, 45];
+    this.variants = [
+      '🎤', '🎉', '💩', '🔥', '👏', '🤘', '🦄', '🌈',
+      '🍺', '🎊', '🐼', '🐙', '🐋', '🌶', '🍞', '🍕'
+    ];
+    this.loop();
+    this.addHandlers();
+  }
+
+
+
+
+
+
+  loop() {
+    if (this.autoAddParticle && this.particles.length < this.limit) {
+      this.createParticle();
+    }
+
+    this.updateParticles();
+    this.updateCounter();
+
+    requestAnimationFrame(this.loop.bind(this));
+  }
+
+  addHandlers() {
+    const isTouchInteraction = 'ontouchstart' in window || navigator.msMaxTouchPoints;
+
+    const tap = isTouchInteraction ? 'touchstart' : 'mousedown';
+    const tapEnd = isTouchInteraction ? 'touchend' : 'mouseup';
+    const move = isTouchInteraction ? 'touchmove' : 'mousemove';
+
+    document.addEventListener(move, (e) => {
+      e.preventDefault();
+      this.mouseX = e.clientX || e.touches[0].clientX;
+      this.mouseY = e.clientY || e.touches[0].clientY;
+    }, {passive: false});
+
+    document.addEventListener(tap, (e) => {
+      this.mouseX = e.clientX || e.touches[0].clientX;
+      this.mouseY = e.clientY || e.touches[0].clientY;
+      this.autoAddParticle = true;
+    });
+
+    document.addEventListener(tapEnd, () => {
+      this.autoAddParticle = false;
+    });
+
+    document.addEventListener('mouseleave', () => {
+      this.autoAddParticle = false;
+    });
+  }
+
+  createParticle() {
+    const size = this.sizes[Math.floor(Math.random() * this.sizes.length)];
+    const speedHorz = Math.random() * 10;
+    const speedUp = Math.random() * 25;
+    const spinVal = Math.random() * 360;
+    const spinSpeed = ((Math.random() * 35)) * (Math.random() <= .5 ? -1 : 1);
+    const top = (this.mouseY - size / 2);
+    const left = (this.mouseX - size / 2);
+    const direction = Math.random() <= .5 ? -1 : 1;
+
+    const particle = document.createElement('span');
+    particle.innerHTML = this.variants[Math.floor(Math.random() * this.variants.length)];
+    particle.classList.add('particle');
+
+    particle.setAttribute("style", `
+      font-size: ${size}px;
+      top: ${top}px;
+      left: ${left}px;
+      transform: rotate(${spinVal}deg);
+    `);
+
+    document.body.appendChild(particle);
+
+    this.particles.push({
+      element: particle,
+      size,
+      speedHorz,
+      speedUp,
+      spinVal,
+      spinSpeed,
+      top,
+      left,
+      direction,
+    });
+  }
+
+  updateParticles() {
+    this.particles.forEach((p) => {
+      p.left = p.left - (p.speedHorz * p.direction);
+      p.top = p.top - p.speedUp;
+      p.speedUp = Math.min(p.size, p.speedUp - 1);
+      p.spinVal = p.spinVal + p.spinSpeed;
+
+      if (p.top >= this.height + p.size) {
+        this.particles = this.particles.filter((o) => o !== p);
+        p.element.remove();
+      }
+
+      p.element.setAttribute("style", `
+        top: ${p.top}px;
+        left: ${p.left}px;
+        font-size: ${p.size}px;
+        transform:rotate(${p.spinVal}deg);
+      `);
+    });
+  }
+
+  updateCounter() {
+  }
+}
+
+
+  const popup = L.popup();
+  var a =[];
+
+  function onMapClick(e) {
+
+  	popup
+  	.setLatLng(e.latlng)
+  	.setContent(` ${e.latlng.toString()}`)
+  	.openOn(map);
+
+  console.log(e.latlng);
+  }
+
+ // map.on('click', onMapClick);
+
+
+map.flyTo([latLS,lonLS+0.001], 13)
+
+
+
+if (localStorage.getItem("latP") != null) {
+	var latPG = localStorage.getItem("latP"); 
+	var lonPG = localStorage.getItem("lonP"); 
+	var parkingMarker = L.marker([parseFloat(latPG), parseFloat(lonPG)], {icon: prkng}).bindPopup("<a onclick='removeP()' href='javascript:void(0);'><span style='font-size:36px;'>❌</span></a>").addTo(pking); 
+	}
+
+function parking() {
+	if (navigator.geolocation) {
+		navigator.geolocation.getCurrentPosition(addParking, showError);
+	} else {
+		console.log("Geolocation is not supported by this browser.");
+	}}
+
+
+function removeP() {
+	pking.clearLayers();
+	localStorage.removeItem("latP");
+	localStorage.removeItem("lonP");
+	}
+
+
+function addParking(position) {
+	map.setView(new L.LatLng(position.coords.latitude, position.coords.longitude), 15);
+	localStorage.setItem("latP", position.coords.latitude); 
+	localStorage.setItem("lonP", position.coords.longitude); 
+	var latPG = localStorage.getItem("latP"); 
+	var lonPG = localStorage.getItem("lonP"); 
+	var parkingMarker = L.marker([parseFloat(latPG), parseFloat(lonPG)], {icon: prkng}).bindPopup("<a onclick='removeP()' href='javascript:void(0);'><span style='font-size:36px;'>❌</span></a>").addTo(pking); 
+
+}
+
+// var x = document.getElementById("jet"); 
+// x.autoplay = true;
+// x.load();
+// x.play();
+
+var magic = 1;
+
+function secret() {
+	var secretLatLon = map.getCenter();
+	a = secretLatLon.lat-33.861;
+	b = secretLatLon.lng+117.166;
+		if (Math.abs(a) < .005 && Math.abs(b) < .005 && magic == 1 ) {
+		var secretAlessandroIsland = L.marker([33.861875, -117.166524], {icon: scrt}).on('click', function() {window.open("https://www.youtube.com/results?search_query=alessandro+island+lake+perris"); }).addTo(map);
+		document.getElementById("secret").play();
+		magic = 0;
+		}
+}
+
+ 
+ 
+ 
+ 
+function disney1031() {
+ 
+const svg = document.querySelector('svg');
+const fuse = svg.querySelector('.fuse');
+var modal = document.getElementById("disM");
+
+
+	var x = document.getElementById("disney"); 
+x.load();
+x.play();
+setTimeout(function() {modal.style.display = "block";}, 3000);
+setTimeout(sparkles, 7000);
+setTimeout(function() {window.location.href = "";}, 28500);
+}
+ 
+function sparkles() {
+const val = { distance: 0 };
+// Create a tween
+gsap.to(val, {
+  // Animate from distance 0 to the total distance
+  distance: fuse.getTotalLength(),
+  // Loop the animation
+  repeat: -1,
+  // Wait 1sec before repeating
+  repeatDelay: 1,
+  // Make the animation lasts 5 seconds
+  duration: 5,
+  // Function call on each frame of the animation
+  onUpdate: () => {
+    // Query a point at the new distance value
+    const point = fuse.getPointAtLength(val.distance);
+    createParticle(point);
+  }
+});
+
+function createParticle (point) {
+  // Create a new circle element
+  const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+  // Prepend the element to the SVG
+  svg.prepend(circle);
+  // Set the coordinates of that circle
+  circle.setAttribute('cx', point.x);
+  circle.setAttribute('cy', point.y);
+  // Define a random radius for each circle
+  circle.setAttribute('r', (Math.random() * 7) + 0.2);
+  
+  // Define a random color
+  circle.setAttribute('fill', gsap.utils.random(['#746bab', '#4a62d8', '#1ab28a', '#76d0c0', '#fbbe4f']));
+  
+  // Animate the circle
+  gsap.to(circle, {
+    // Random cx based on its current position
+    cx: '+=random(-20,20)',
+    // Random cy based on its current position
+    cy: '+=random(-20,20)',
+    // Fade out
+    opacity: 0,
+    // Random duration for each circle
+    duration: 'random(1, 2)',
+    // Prevent gsap from rounding the cx & cy values
+    autoRound: false,
+    // Once the animation is complete
+    onComplete: () => {
+      // Remove the SVG element from its parent
+      svg.removeChild(circle);
+    }
+  });
+}
+
+fuse.setAttribute('stroke-dasharray', fuse.getTotalLength());
+fuse.setAttribute('stroke-dashoffset', fuse.getTotalLength() * 2);
+gsap.to(fuse, {
+  strokeDashoffset: fuse.getTotalLength(),
+  duration: 10,
+  repeat: -1,
+  repeatDelay: 5
+});
+}
+
+
+
+</script>
+
+</body>
+</html>
+
