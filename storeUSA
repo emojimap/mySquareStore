@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,minimum-scale=1">
+		<title>Windrose . farm > Store</title>
+		<link href="LiveSupportChat.css" rel="stylesheet" type="text/css">
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
+<style> 
+a:hover, a:visited, a:link, a:active {
+  text-decoration: none;
+  color:black;
+}
+
+body, h1, h2, h3, h4, h5, h6  {
+  font-family: Roboto, serif;
+}
+ 
+html {
+  box-sizing: border-box;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+.column {
+  float: left;
+  width: 26%;
+  margin: 16px; 
+}
+
+@media screen and (max-width: 650px) {
+  .column {
+    width: 100%;
+    display: block;
+  }
+}
+
+.card {
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  height:550px;
+}
+
+.container {
+  padding: 0 16px;
+}
+
+.container::after, .row::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+.title {
+  color: grey;
+}
+ 
+  
+.shade {
+  position: absolute;
+  top: 0;
+  left: -3%;
+  width: 106.5%;
+  height: 50px;
+}
+
+.shade_piece {
+  display: inline-block;
+  width: 7.1%;
+  height: 100%;
+  float: left;
+  border-radius: 0 0 50px 50px;
+}
+
+.red-piece {background-image: linear-gradient(to bottom, #777 60%, #999 40%);}
+
+.white-piece {background-image: linear-gradient(to bottom, #333 60%, #555 40%);}
+ 
+ 
+ 
+.footer {
+   position: fixed;
+   left: 0;
+   bottom: 0;
+   width: 100%;
+  background-image: linear-gradient(90deg, rgba(200,0,0,.5) 50%, transparent 0),
+    linear-gradient(rgba(200,0,0,.3) 50%, transparent 0);
+  background-size: 30px 30px;
+   text-align: center;
+}
+</style>
+	</head>
+	<body>
+<a href='https://windrose.farm'>
+	 <div class="shade">
+        <span class="shade_piece red-piece"></span>
+        <span class="shade_piece white-piece"></span>
+        <span class="shade_piece red-piece"></span>
+        <span class="shade_piece white-piece"></span>
+        <span class="shade_piece red-piece"></span>
+        <span class="shade_piece white-piece"></span>
+        <span class="shade_piece red-piece"></span>
+        <span class="shade_piece white-piece"></span>
+        <span class="shade_piece red-piece"></span>
+        <span class="shade_piece white-piece"></span>
+        <span class="shade_piece red-piece"></span>
+        <span class="shade_piece white-piece"></span>
+        <span class="shade_piece red-piece"></span>
+        <span class="shade_piece white-piece"></span>
+      </div> 
+	  
+  </a>
+  
+	  
+ <div class="row" style="height:80px;">
+ 
+	   </div>
+<div class="row">
+	<a href='https://windrose.farm'>
+	<h1 style="color:grey; float:left;color:green;text-shadow: 0 0 2px green;">Windrose.Farm</h1>
+	<h2 style="color:lightGrey; float:left;color:yellow;text-shadow: 1px 1px 1px orange;">Store</h2>
+	</a>
+</div>
+<div class="row">
+
+<div class='column'>
+<div class='card'>
+<a href='emoji'>
+<img src='emojiStore.png' alt='item' style='width:200px; height:200px;'>
+<div class='container'>
+<h2>Emoji on Map 👀</h2>
+<p class='title'>👉 $1 for 30 days</p>
+<p><span style='font-size: 32px'>50+</span> Emojis to ❤️ from! </p>
+</div>
+</div>
+</a>
+</div>
+
+
+
+<?
+
+$db = new SQLite3('products.db') or die('Unable to open database'); 
+$result = $db->query('SELECT * FROM products') or die('Query failed');
+while ($row = $result->fetchArray())
+{
+	  
+$img = $row['img'];
+$name = $row['name'];
+$itemDesc = $row["desc"];
+$itemInfo = explode(":", $itemDesc);
+
+echo "<div class='column'>\r\n<div class='card'>\r\n<a href='item?q=" . $name . "'>\r\n<img src='items/" . $img . "' alt='item' style='width:200px; height:200px;'>\r\n<div class='container'>\r\n<h2>" . $itemInfo[0] . "</h2>\r\n<p class='title'><br>" . $itemInfo[1] . "</p>\r\n<p>" . $itemInfo[2] . "</p>\r\n</div>\r\n</div>\r\n</a>\r\n</div>\r\n\r\n";
+
+}
+ 
+ ?>
+
+
+
+
+
+</div>
+ 
+
+<div class="footer" style='height:40px;'>
+  <p> </p>
+</div>
+
+ 
+
+	</body>
+</html>
+
