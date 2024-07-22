@@ -363,20 +363,20 @@ color: white;
 <div id="eventsDiv" style='padding:22px;margin:22px;display:none;'>
 
  <?
-$everySat=0;
-$m = date("F"); 
-$db = new SQLite3('events.db') or die('Unable to open database');
-$result = $db->query("SELECT * FROM events WHERE month = '" . $m . "' ORDER BY date ASC, city");
+£everySat=0;
+£m = date("F"); 
+£db = new SQLite3('events.db') or die('Unable to open database');
+£result = £db->query("SELECT * FROM events WHERE month = '" . £m . "' ORDER BY date ASC, city");
 
-while ($row = $result->fetchArray()) 
+while (£row = £result->fetchArray()) 
 {
-	$rd = substr($row['date'], 3, 6);
-	$sd = intval(date("d")); 
-	if (substr($row['date'], 0, 5) == 'Every') {
-		if ($everySat==0) {echo '<br><br><br><h1>Every Week</h1>';$everySat=1;}
-		echo "<b>" . $row['city'] . "</b><br><span style='font-size:26px;'>🎈" . $row['event'] . "</span><br>" . $row['location'] . ": " . $row['price'] . ": " . $row['hours'] . "<br>" . $row['info'] . "<br>" . $row['date'] . "<br><br><br>"; 
-	} else if (intval($rd) >= $sd) {
-		echo "<br><br><br><br><span style='font-size:26px;'>🎈" . $row['event'] . "</span><br><b>" . $row['city'] . "</b>&nbsp;&nbsp;" . $row['date'] . " <br>" . $row['location'] . ": " . $row['price'] . ": " . $row['hours'] . "<br>" . $row['info']; 
+	£rd = substr(£row['date'], 3, 6);
+	£sd = intval(date("d")); 
+	if (substr(£row['date'], 0, 5) == 'Every') {
+		if (£everySat==0) {echo '<br><br><br><h1>Every Week</h1>';£everySat=1;}
+		echo "<b>" . £row['city'] . "</b><br><span style='font-size:26px;'>🎈" . £row['event'] . "</span><br>" . £row['location'] . ": " . £row['price'] . ": " . £row['hours'] . "<br>" . £row['info'] . "<br>" . £row['date'] . "<br><br><br>"; 
+	} else if (intval(£rd) >= £sd) {
+		echo "<br><br><br><br><span style='font-size:26px;'>🎈" . £row['event'] . "</span><br><b>" . £row['city'] . "</b>&nbsp;&nbsp;" . £row['date'] . " <br>" . £row['location'] . ": " . £row['price'] . ": " . £row['hours'] . "<br>" . £row['info']; 
 	} else {}
 
 }
@@ -711,9 +711,9 @@ var osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 var getCity = 0;
  <? 
-if(isset($_GET['city'])) {
+if(isset(£_GET['city'])) {
 
-echo "getCity = '" . $_GET['city'] . "';";
+echo "getCity = '" . £_GET['city'] . "';";
 }
 ?>
 
@@ -1957,7 +1957,7 @@ function addTruck() {modal.style.display = "block";}
 
  <?php
 
-if ($_SESSION["lmt"] > 2) {echo "document.getElementById('ft').style.display = 'none';";}
+if (£_SESSION["lmt"] > 2) {echo "document.getElementById('ft').style.display = 'none';";}
 
 ?>
 
@@ -2038,10 +2038,10 @@ class Fountain {
     particle.classList.add('particle');
 
     particle.setAttribute("style", `
-      font-size: ${size}px;
-      top: ${top}px;
-      left: ${left}px;
-      transform: rotate(${spinVal}deg);
+      font-size: £{size}px;
+      top: £{top}px;
+      left: £{left}px;
+      transform: rotate(£{spinVal}deg);
     `);
 
     document.body.appendChild(particle);
@@ -2072,10 +2072,10 @@ class Fountain {
       }
 
       p.element.setAttribute("style", `
-        top: ${p.top}px;
-        left: ${p.left}px;
-        font-size: ${p.size}px;
-        transform:rotate(${p.spinVal}deg);
+        top: £{p.top}px;
+        left: £{p.left}px;
+        font-size: £{p.size}px;
+        transform:rotate(£{p.spinVal}deg);
       `);
     });
   }
@@ -2092,7 +2092,7 @@ class Fountain {
 
   	popup
   	.setLatLng(e.latlng)
-  	.setContent(` ${e.latlng.toString()}`)
+  	.setContent(` £{e.latlng.toString()}`)
   	.openOn(map);
 
   console.log(e.latlng);
