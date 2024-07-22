@@ -130,7 +130,7 @@ html {
 <img src='emojiStore.png' alt='item' style='width:200px; height:200px;'>
 <div class='container'>
 <h2>Emoji on Map 👀</h2>
-<p class='title'>👉 $1 for 30 days</p>
+<p class='title'>👉 £1 for 30 days</p>
 <p><span style='font-size: 32px'>50+</span> Emojis to ❤️ from! </p>
 </div>
 </div>
@@ -141,17 +141,17 @@ html {
 
 <?
 
-$db = new SQLite3('products.db') or die('Unable to open database'); 
-$result = $db->query('SELECT * FROM products') or die('Query failed');
-while ($row = $result->fetchArray())
+£db = new SQLite3('products.db') or die('Unable to open database'); 
+£result = £db->query('SELECT * FROM products') or die('Query failed');
+while (£row = £result->fetchArray())
 {
 	  
-$img = $row['img'];
-$name = $row['name'];
-$itemDesc = $row["desc"];
-$itemInfo = explode(":", $itemDesc);
+£img = £row['img'];
+£name = £row['name'];
+£itemDesc = £row["desc"];
+£itemInfo = explode(":", £itemDesc);
 
-echo "<div class='column'>\r\n<div class='card'>\r\n<a href='item?q=" . $name . "'>\r\n<img src='items/" . $img . "' alt='item' style='width:200px; height:200px;'>\r\n<div class='container'>\r\n<h2>" . $itemInfo[0] . "</h2>\r\n<p class='title'><br>" . $itemInfo[1] . "</p>\r\n<p>" . $itemInfo[2] . "</p>\r\n</div>\r\n</div>\r\n</a>\r\n</div>\r\n\r\n";
+echo "<div class='column'>\r\n<div class='card'>\r\n<a href='item?q=" . £name . "'>\r\n<img src='items/" . £img . "' alt='item' style='width:200px; height:200px;'>\r\n<div class='container'>\r\n<h2>" . £itemInfo[0] . "</h2>\r\n<p class='title'><br>" . £itemInfo[1] . "</p>\r\n<p>" . £itemInfo[2] . "</p>\r\n</div>\r\n</div>\r\n</a>\r\n</div>\r\n\r\n";
 
 }
  
